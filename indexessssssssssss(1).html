@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SynapseSOFWA - Media Sosial Sekolah</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        igBlue: '#0095F6',
+                        igHoverBlue: '#1877F2',
+                        igDarkBg: '#000000',
+                        igCardBg: '#000000',
+                        igBorder: '#262626',
+                        igLightGray: '#A8A8A8',
+                        igTextGray: '#737373'
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar minimalis ala Instagram */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #262626;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #363636;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Double-tap Heart Pulse Animation */
+        @keyframes heartPulse {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.3); opacity: 0.95; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        .animate-heart-pulse {
+            animation: heartPulse 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Instagram Story Ring Gradient Animation */
+        .story-ring {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        }
+    </style>
+</head>
+<body class="bg-igDarkBg text-white antialiased min-h-screen selection:bg-neutral-800">
+
+    <!-- ========================================== -->
+    <!-- TOAST NOTIFICATION BANNER                  -->
+    <!-- ========================================== -->
+    <div id="toast-notification" class="fixed bottom-16 md:bottom-6 left-1/2 -translate-x-1/2 z-50 hidden transition-all duration-300 transform translate-y-20 opacity-0 px-5 py-3 rounded-xl bg-igBlue text-white text-xs font-semibold shadow-2xl flex items-center space-x-3 border border-white/10">
+        <i class="fa-solid fa-circle-info text-base" id="toast-icon"></i>
+        <span id="toast-message">Pesan notifikasi</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 0. HALAMAN AUTHENTICATION (SIGN IN / SIGN UP) -->
+    <!-- ========================================== -->
+    <div id="auth-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-black p-4 overflow-y-auto">
+        <div class="w-full max-w-md bg-black border border-igBorder rounded-2xl p-6 sm:p-8 space-y-6 shadow-2xl my-auto">
+            
+            <!-- Logo & Title -->
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-igBlue/10 text-igBlue mb-1">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-white font-sans">SynapseSOFWA</h1>
+                <p class="text-xs text-igLightGray">Komunitas Media Sosial Resmi Sekolah</p>
+            </div>
+
+            <!-- Form Masuk Anonim (tanpa email & kata sandi) -->
+            <form id="anon-login-form" onsubmit="handleAnonLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Nama Tampilan (opsional)</label>
+                    <input type="text" id="anon-fullname" maxlength="40" placeholder="Ahmad Subagja" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Username (opsional)</label>
+                    <input type="text" id="anon-username" maxlength="20" placeholder="ahmad_siswa" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Peran Sekolah</label>
+                    <select id="anon-role" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                        <option value="Siswa">Siswa Kelas X / XI / XII</option>
+                        <option value="OSIS">Pengurus OSIS / Ekskul</option>
+                        <option value="Guru">Guru / Tenaga Pendidik</option>
+                    </select>
+                </div>
+                <button type="submit" id="anon-submit-btn" class="w-full bg-igBlue hover:bg-igHoverBlue disabled:opacity-60 text-white py-2.5 rounded-lg font-semibold text-sm transition">
+                    <span id="anon-submit-label">Masuk Anonim</span>
+                </button>
+                <p class="text-[11px] text-igTextGray text-center leading-relaxed">Tanpa email dan kata sandi. Akun tersimpan di perangkat ini dan tidak bisa dipulihkan setelah keluar.</p>
+            </form>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-igBorder"></div>
+                <span class="flex-shrink mx-3 text-[11px] text-igTextGray uppercase font-semibold">Atau</span>
+                <div class="flex-grow border-t border-igBorder"></div>
+            </div>
+
+            <!-- Akun simulasi lokal (tanpa database) -->
+            <div class="space-y-2">
+                <p class="text-xs text-center text-igLightGray">Coba cepat dengan akun simulasi lokal:</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="quickAuthLogin('siswa')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igLightGray hover:text-white transition">Siswa</button>
+                    <button onclick="quickAuthLogin('osis')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igBlue hover:text-white transition">OSIS</button>
+                    <button onclick="quickAuthLogin('guru')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-purple-400 hover:text-white transition">Guru</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP WRAPPER (HIDDEN SEBELUM SIGN IN) -->
+    <div id="main-app-wrapper" class="hidden flex min-h-screen bg-black">
+
+        <!-- ========================================== -->
+        <!-- 1. SIDEBAR NAVIGASI KIRI (DESKTOP)        -->
+        <!-- ========================================== -->
+        <aside class="hidden md:flex flex-col justify-between w-16 xl:w-64 h-screen sticky top-0 border-r border-igBorder p-3 xl:p-4 z-40 bg-black">
+            <div class="flex flex-col space-y-6">
+                <!-- Logo Aplikasi -->
+                <div class="py-3 px-2 flex items-center">
+                    <a href="#" onclick="switchTab('feed')" class="flex items-center space-x-3">
+                        <i class="fa-solid fa-graduation-cap text-igBlue text-2xl"></i>
+                        <span class="hidden xl:inline text-xl font-bold tracking-tight font-sans">SynapseSOFWA</span>
+                    </a>
+                </div>
+
+                <!-- Menu Utama -->
+                <nav class="flex flex-col space-y-1">
+                    <button onclick="switchTab('feed')" id="nav-feed" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 transition font-medium text-white group">
+                        <i class="fa-solid fa-house text-xl w-6 text-center"></i>
+                        <span class="hidden xl:inline">Beranda</span>
+                    </button>
+
+                    <button onclick="openSearchModal()" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 transition font-medium text-white group">
+                        <i class="fa-solid fa-magnifying-glass text-xl w-6 text-center"></i>
+                        <span class="hidden xl:inline">Cari</span>
+                    </button>
+
+                    <button onclick="filterCategory('Pengumuman')" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 transition font-medium text-white group">
+                        <i class="fa-solid fa-bullhorn text-xl w-6 text-center"></i>
+                        <span class="hidden xl:inline">Pengumuman</span>
+                    </button>
+
+                    <button onclick="openCreateModal()" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 transition font-medium text-white group">
+                        <i class="fa-regular fa-square-plus text-xl w-6 text-center"></i>
+                        <span class="hidden xl:inline">Buat Kiriman</span>
+                    </button>
+
+                    <button onclick="switchTab('profile')" id="nav-profile" class="flex items-center space-x-4 p-3 rounded-lg hover:bg-neutral-900 transition font-medium text-white group">
+                        <img id="sidebar-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=S" class="w-6 h-6 rounded-full object-cover border border-igBorder" alt="Profile">
+                        <span class="hidden xl:inline">Profil</span>
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Footer Sidebar / Login status -->
+            <div class="flex flex-col space-y-2 pt-4 border-t border-igBorder/50">
+                <button onclick="openAccountModal()" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-neutral-900 transition text-sm text-igLightGray">
+                    <i class="fa-solid fa-user-gear text-lg w-6 text-center"></i>
+                    <span class="hidden xl:inline truncate" id="sidebar-username-label">@guest_siswa</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ========================================== -->
+        <!-- 2. KONTEN UTAMA (MIDDLE FEED & PROFILE)    -->
+        <!-- ========================================== -->
+        <main class="flex-1 flex justify-center max-w-6xl mx-auto px-0 md:px-4">
+            
+            <div class="w-full max-w-[630px] py-0 md:py-6">
+                
+                <!-- MOBILE HEADER -->
+                <header class="md:hidden sticky top-0 bg-black/90 backdrop-blur border-b border-igBorder px-4 py-3 flex justify-between items-center z-30">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-graduation-cap text-igBlue text-xl"></i>
+                        <span class="font-bold text-lg">SynapseSOFWA</span>
+                    </div>
+                    <div class="flex items-center space-x-4 text-xl">
+                        <button onclick="openCreateModal()"><i class="fa-regular fa-square-plus"></i></button>
+                        <button onclick="openAccountModal()"><i class="fa-solid fa-bars"></i></button>
+                    </div>
+                </header>
+
+                <!-- VIEW 1: BERANDA / FEED -->
+                <section id="view-feed" class="space-y-6">
+                    
+                    <!-- BARIS STORY SEKOLAH -->
+                    <div class="bg-black md:border md:border-igBorder md:rounded-xl p-3 flex items-center space-x-4 overflow-x-auto no-scrollbar">
+                        <!-- Tombol Tambah Story -->
+                        <div class="flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer" onclick="openStoryUploadModal()">
+                            <div class="relative w-16 h-16 rounded-full border-2 border-dashed border-igBlue flex items-center justify-center p-1">
+                                <img id="story-my-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=S" class="w-full h-full rounded-full object-cover">
+                                <div class="absolute bottom-0 right-0 bg-igBlue text-white rounded-full w-5 h-5 flex items-center justify-center text-xs border-2 border-black">
+                                    <i class="fa-solid fa-plus"></i>
+                                </div>
+                            </div>
+                            <span class="text-xs text-igLightGray truncate w-16 text-center">Buat Story</span>
+                        </div>
+
+                        <!-- Container List Stories Dinamis -->
+                        <div id="stories-container" class="flex space-x-4">
+                            <!-- Story items dirender via JS -->
+                        </div>
+                    </div>
+
+                    <!-- FILTER KATEGORI SEKOLAH -->
+                    <div class="flex items-center space-x-2 px-3 overflow-x-auto no-scrollbar text-xs">
+                        <button onclick="filterCategory('All')" id="cat-btn-All" class="category-btn active bg-igBlue text-white px-3.5 py-1.5 rounded-full font-medium flex-shrink-0">Semua Konten</button>
+                        <button onclick="filterCategory('Pengumuman')" id="cat-btn-Pengumuman" class="category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0">📢 Pengumuman Guru</button>
+                        <button onclick="filterCategory('OSIS & Ekskul')" id="cat-btn-OSIS & Ekskul" class="category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0">🏆 OSIS & Ekskul</button>
+                        <button onclick="filterCategory('Karya & Tugas')" id="cat-btn-Karya & Tugas" class="category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0">🎨 Karya & Tugas</button>
+                        <button onclick="filterCategory('Kegiatan')" id="cat-btn-Kegiatan" class="category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0">📸 Kegiatan Sekolah</button>
+                    </div>
+
+                    <!-- FEED POSTS CONTAINER -->
+                    <div id="feed-posts-container" class="space-y-6 pb-20 md:pb-10">
+                        <!-- Posts dirender secara dinamis -->
+                    </div>
+
+                    <!-- EMPTY FEED STATE -->
+                    <div id="empty-feed-notice" class="hidden text-center py-16 px-4 bg-black border border-igBorder rounded-xl">
+                        <i class="fa-regular fa-image text-5xl text-igTextGray mb-3"></i>
+                        <h3 class="text-lg font-semibold text-white">Belum Ada Postingan</h3>
+                        <p class="text-sm text-igLightGray mt-1 max-w-sm mx-auto">Jadilah yang pertama membagikan pengumuman, karya, atau momen kegiatan sekolah!</p>
+                        <button onclick="openCreateModal()" class="mt-4 bg-igBlue hover:bg-igHoverBlue text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            <i class="fa-regular fa-square-plus mr-1.5"></i> Buat Kiriman Pertama
+                        </button>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: HALAMAN PROFIL (KISI 3 KOLOM ALA INSTAGRAM WEB) -->
+                <section id="view-profile" class="hidden pb-20 md:pb-10 px-3 md:px-0">
+                    <!-- HEADER PROFIL -->
+                    <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-12 py-6 border-b border-igBorder">
+                        <!-- Foto Profil Besar -->
+                        <div class="relative group">
+                            <img id="profile-page-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=G" class="w-24 h-24 md:w-36 md:h-36 rounded-full object-cover border-2 border-igBorder">
+                        </div>
+
+                        <!-- Info & Bio -->
+                        <div class="flex-1 space-y-4 text-center md:text-left">
+                            <div class="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
+                                <h2 id="profile-page-username" class="text-xl font-normal text-white">@guest_siswa</h2>
+                                <button onclick="openAccountModal()" class="bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-1.5 rounded-lg text-sm font-semibold border border-igBorder">
+                                    Edit Profil / Ganti Akun
+                                </button>
+                            </div>
+
+                            <!-- Stat Jumlah Kiriman/Followers -->
+                            <div class="flex justify-center md:justify-start space-x-8 text-sm">
+                                <div><span id="profile-post-count" class="font-semibold text-white">0</span> kiriman</div>
+                                <div onclick="openFollowModal('followers')" class="cursor-pointer hover:opacity-80 transition"><span id="profile-followers-count" class="font-semibold text-white">0</span> followers</div>
+                                <div onclick="openFollowModal('following')" class="cursor-pointer hover:opacity-80 transition"><span id="profile-following-count" class="font-semibold text-white">0</span> following</div>
+                            </div>
+
+                            <!-- Bio & Nama Sekolah -->
+                            <div class="text-sm">
+                                <p id="profile-page-fullname" class="font-semibold text-white">Guest Siswa - SMAN 1 Digital Campus</p>
+                                <p id="profile-page-bio" class="text-igLightGray mt-0.5">Komunitas Digital Sekolah 📚 | Akun Resmi SynapseSOFWA ✨</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB FILTER PROFIL -->
+                    <div class="flex justify-center space-x-12 border-b border-igBorder text-xs tracking-widest font-semibold uppercase">
+                        <button onclick="switchProfileTab('posts')" id="profile-tab-posts" class="py-3 text-white border-t-2 border-white flex items-center space-x-2">
+                            <i class="fa-solid fa-table-cells"></i>
+                            <span>Kiriman</span>
+                        </button>
+                        <button onclick="switchProfileTab('reels')" id="profile-tab-reels" class="py-3 text-igTextGray hover:text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-clapperboard"></i>
+                            <span>Reels</span>
+                        </button>
+                        <button onclick="switchProfileTab('saved')" id="profile-tab-saved" class="py-3 text-igTextGray hover:text-white flex items-center space-x-2">
+                            <i class="fa-regular fa-bookmark"></i>
+                            <span>Tersimpan</span>
+                        </button>
+                    </div>
+
+                    <!-- KISI 3 KOLOM PROFIL (GRID) -->
+                    <div id="profile-grid-container" class="grid grid-cols-3 gap-1 md:gap-4 mt-4">
+                        <!-- Grid items dirender via JS -->
+                    </div>
+
+                    <div id="empty-profile-grid" class="hidden text-center py-12 text-igTextGray">
+                        <i class="fa-solid fa-camera text-4xl mb-2"></i>
+                        <p class="text-sm">Belum Ada Kiriman Foto / Video</p>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 3. BILAH SAMPING KANAN (DESKTOP IG SIDEBAR)-->
+            <!-- ========================================== -->
+            <aside id="right-sidebar" class="hidden lg:block w-[320px] pl-8 py-8">
+                <!-- Mini User Info -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <img id="right-sidebar-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=G" class="w-12 h-12 rounded-full object-cover border border-igBorder">
+                        <div class="text-sm">
+                            <p id="right-sidebar-username" class="font-semibold text-white">guest_siswa</p>
+                            <p id="right-sidebar-fullname" class="text-xs text-igLightGray">Guest - SMAN 1</p>
+                        </div>
+                    </div>
+                    <button onclick="openAccountModal()" class="text-xs font-semibold text-igBlue hover:text-white transition">
+                        Alihkan
+                    </button>
+                </div>
+
+                <!-- Info API Status Badges -->
+                <div class="mt-4 p-3 bg-neutral-900 border border-igBorder rounded-xl text-xs space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="text-igLightGray flex items-center gap-1.5"><i class="fa-solid fa-database text-emerald-400"></i> Supabase DB:</span>
+                        <span id="supabase-status-badge" class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/60 text-yellow-300 font-medium">Demo / Fallback</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-igLightGray flex items-center gap-1.5"><i class="fa-solid fa-cloud-arrow-up text-igBlue"></i> Cloudinary Upload:</span>
+                        <span id="cloudinary-status-badge" class="px-2 py-0.5 rounded text-[10px] bg-yellow-900/60 text-yellow-300 font-medium">Demo / Fallback</span>
+                    </div>
+                </div>
+
+                <!-- Info Resmi Sekolah / Rekomendasi -->
+                <div class="mt-6 space-y-3">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-semibold text-igLightGray">Akun Resmi Sekolah</span>
+                        <a href="#" onclick="openSearchModal()" class="text-white hover:text-igLightGray font-semibold">Cari Siswa</a>
+                    </div>
+
+                    <div id="suggested-container" class="space-y-3 pt-1"></div>
+                </div>
+
+                <!-- Footer Links -->
+                <footer class="mt-8 text-[11px] text-igTextGray leading-relaxed space-y-3">
+                    <p>Informasi · Bantuan · Supabase API · Cloudinary CDN · Privasi · Ketentuan · Bahasa Indonesia</p>
+                    <p>© 2026 SYNAPSESOFWA DARI KOMUNITAS DIGITAL SEKOLAH</p>
+                </footer>
+            </aside>
+
+        </main>
+
+        <!-- ========================================== -->
+        <!-- 4. BOTTOM NAV MOBILE (375px - 768px)       -->
+        <!-- ========================================== -->
+        <nav class="md:hidden fixed bottom-0 left-0 right-0 h-12 bg-black border-t border-igBorder flex justify-around items-center z-50 px-2">
+            <button onclick="switchTab('feed')" class="text-xl text-white">
+                <i class="fa-solid fa-house"></i>
+            </button>
+            <button onclick="openSearchModal()" class="text-xl text-white">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+            <button onclick="openCreateModal()" class="text-xl text-white">
+                <i class="fa-regular fa-square-plus"></i>
+            </button>
+            <button onclick="filterCategory('Pengumuman')" class="text-xl text-white">
+                <i class="fa-solid fa-bullhorn"></i>
+            </button>
+            <button onclick="switchTab('profile')" class="text-xl">
+                <img id="mobile-bottom-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=S" class="w-6 h-6 rounded-full object-cover border border-igBorder">
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: BUAT UNGGAHAN BARU                -->
+    <!-- ========================================== -->
+    <div id="create-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-black border border-igBorder rounded-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+            <!-- Header Modal -->
+            <div class="px-4 py-3 border-b border-igBorder flex justify-between items-center text-center">
+                <button onclick="closeCreateModal()" class="text-igLightGray hover:text-white text-sm">Batal</button>
+                <h3 class="font-semibold text-white">Buat Kiriman Baru</h3>
+                <button onclick="submitPost()" id="submit-post-btn" class="text-igBlue hover:text-white font-semibold text-sm flex items-center space-x-1">
+                    <span id="submit-post-label">Bagikan</span>
+                    <i id="submit-post-spinner" class="fa-solid fa-spinner animate-spin hidden"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-4 space-y-4 overflow-y-auto flex-1">
+                <!-- User Meta Header -->
+                <div class="flex items-center space-x-3">
+                    <img id="modal-post-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=G" class="w-8 h-8 rounded-full object-cover">
+                    <div>
+                        <p id="modal-post-username" class="text-sm font-semibold text-white">guest_siswa</p>
+                        <p class="text-[11px] text-igTextGray">Mengunggah ke SynapseSOFWA</p>
+                    </div>
+                </div>
+
+                <!-- Kategori Selector -->
+                <div>
+                    <label class="block text-xs text-igLightGray mb-1 font-medium">Kategori Kiriman Sekolah:</label>
+                    <select id="post-category" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue">
+                        <option value="Kegiatan">📸 Kegiatan Sekolah</option>
+                        <option value="Pengumuman">📢 Pengumuman Guru / Sekolah</option>
+                        <option value="OSIS & Ekskul">🏆 OSIS & Ekskul</option>
+                        <option value="Karya & Tugas">🎨 Karya & Tugas Siswa</option>
+                    </select>
+                </div>
+
+                <!-- Input Caption -->
+                <div>
+                    <textarea id="post-caption" rows="3" placeholder="Tulis takarir / keterangan kegiatan sekolah..." class="w-full bg-transparent border-0 text-sm text-white focus:outline-none resize-none placeholder-igTextGray"></textarea>
+                </div>
+
+                <!-- Upload Media Box (Image / Video max 15s) -->
+                <div id="media-dropzone" class="border-2 border-dashed border-igBorder rounded-xl p-6 text-center cursor-pointer hover:border-igBlue transition relative">
+                    <input type="file" id="media-file-input" accept="image/*,video/*" class="hidden" onchange="handleFileSelect(event)">
+                    
+                    <div id="dropzone-prompt" onclick="document.getElementById('media-file-input').click()">
+                        <i class="fa-solid fa-photo-film text-4xl text-igTextGray mb-2"></i>
+                        <p class="text-sm font-medium text-white">Pilih Foto atau Video Sekolah</p>
+                        <p class="text-xs text-igTextGray mt-1">Durasi video maksimal <span class="text-yellow-400 font-semibold">15 detik</span></p>
+                    </div>
+
+                    <!-- Preview Container -->
+                    <div id="media-preview-container" class="hidden relative">
+                        <img id="image-preview" class="hidden max-h-60 mx-auto rounded-lg object-contain">
+                        <video id="video-preview" controls class="hidden max-h-60 mx-auto rounded-lg"></video>
+                        <button onclick="clearMediaSelection()" type="button" class="absolute top-2 right-2 bg-black/80 text-white rounded-full p-1.5 hover:bg-red-600 transition">
+                            <i class="fa-solid fa-xmark w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alert Notice Video Duration -->
+                <div id="video-duration-warning" class="hidden p-2.5 bg-red-900/40 border border-red-500 rounded-lg text-xs text-red-200 flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-exclamation text-base text-red-400 flex-shrink-0"></i>
+                    <span>Durasi video melebihi 15 detik! Harap potong video Anda terlebih dahulu.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: UNGGAH STORY BARU                 -->
+    <!-- ========================================== -->
+    <div id="story-upload-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-black border border-igBorder rounded-xl w-full max-w-sm p-4 space-y-4">
+            <div class="flex justify-between items-center border-b border-igBorder pb-3">
+                <h3 class="font-semibold text-white text-sm">Tambah Story Sekolah</h3>
+                <button onclick="closeStoryUploadModal()" class="text-igLightGray hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="space-y-3">
+                <input type="file" id="story-file-input" accept="image/*,video/*" class="w-full text-xs text-igLightGray bg-neutral-900 p-2 rounded-lg border border-igBorder">
+                <p class="text-[11px] text-igTextGray">Story akan otomatis diunggah ke Cloudinary dan berlaku 24 jam.</p>
+                <button onclick="submitStory()" id="submit-story-btn" class="w-full bg-igBlue hover:bg-igHoverBlue text-white py-2 rounded-lg font-semibold text-sm flex items-center justify-center space-x-2">
+                    <span id="submit-story-label">Unggah Story</span>
+                    <i id="submit-story-spinner" class="fa-solid fa-spinner animate-spin hidden"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: VIEW STORY FULLSCREEN             -->
+    <!-- ========================================== -->
+    <div id="story-viewer-modal" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center">
+        <div class="relative w-full max-w-md h-full md:h-[85vh] bg-neutral-950 md:rounded-2xl overflow-hidden flex flex-col justify-between">
+            <!-- Progress Bar Baris Atas -->
+            <div class="absolute top-0 left-0 right-0 p-3 z-20 space-y-2 bg-gradient-to-b from-black/80 to-transparent">
+                <div class="w-full bg-neutral-700 h-1 rounded-full overflow-hidden">
+                    <div id="story-progress-bar" class="bg-white h-full w-0 transition-all duration-100 ease-linear"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <img id="story-viewer-avatar" class="w-8 h-8 rounded-full object-cover border border-white/20">
+                        <div>
+                            <p id="story-viewer-username" class="text-xs font-semibold text-white"></p>
+                            <p id="story-viewer-time" class="text-[10px] text-neutral-400"></p>
+                        </div>
+                    </div>
+                    <button onclick="closeStoryViewer()" class="text-white hover:text-gray-300 text-lg px-2"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+
+            <!-- Content Area Story -->
+            <div class="w-full h-full flex items-center justify-center bg-black relative">
+                <img id="story-viewer-img" class="hidden max-h-full max-w-full object-contain">
+                <video id="story-viewer-video" autoplay playsinline muted class="hidden max-h-full max-w-full object-contain"></video>
+                <div class="absolute inset-0 flex z-10 pt-20"><div class="w-1/3 h-full cursor-pointer" onclick="storyNav(-1)"></div><div class="w-2/3 h-full cursor-pointer" onclick="storyNav(1)"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 4: COMMENT MODAL                     -->
+    <!-- ========================================== -->
+    <div id="comment-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-black border border-igBorder rounded-xl w-full max-w-lg overflow-hidden flex flex-col h-[75vh]">
+            <div class="px-4 py-3 border-b border-igBorder flex justify-between items-center">
+                <h3 class="font-semibold text-white text-sm">Komentar Kiriman</h3>
+                <button onclick="closeCommentModal()" class="text-igLightGray hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div id="comment-list-container" class="p-4 space-y-3 overflow-y-auto flex-1">
+                <!-- List komentar dimasukkan via JS -->
+            </div>
+
+            <form onsubmit="handleAddComment(event)" class="p-3 border-t border-igBorder flex items-center space-x-2 bg-neutral-900">
+                <input type="text" id="comment-input-text" placeholder="Tambahkan komentar sekolah..." required class="flex-1 bg-transparent border-0 text-sm text-white focus:outline-none">
+                <button type="submit" class="text-igBlue font-semibold text-sm hover:text-white transition">Kirim</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 5: PENCARIAN SISWA / GURU            -->
+    <!-- ========================================== -->
+    <div id="search-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-black border border-igBorder rounded-xl w-full max-w-md overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="p-4 border-b border-igBorder flex items-center space-x-3">
+                <i class="fa-solid fa-magnifying-glass text-igLightGray"></i>
+                <input type="text" id="search-input-query" oninput="handleSearchQuery(this.value)" placeholder="Cari postingan, username, atau tag..." class="w-full bg-transparent border-0 text-sm text-white focus:outline-none">
+                <button onclick="closeSearchModal()" class="text-xs text-igLightGray hover:text-white">Batal</button>
+            </div>
+            <div id="search-results-container" class="p-4 space-y-3 overflow-y-auto flex-1 min-h-[200px]">
+                <p class="text-center text-xs text-igTextGray py-8">Ketik kata kunci untuk mencari di SynapseSOFWA...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 6: AKUN & CONFIG APIS (SUPABASE/CLOUDINARY) -->
+    <!-- ========================================== -->
+    <div id="account-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-black border border-igBorder rounded-xl w-full max-w-md p-6 space-y-6 text-center my-auto">
+            <div class="flex justify-between items-center border-b border-igBorder pb-3">
+                <h3 class="font-semibold text-white">Pengaturan Akun</h3>
+                <button onclick="closeAccountModal()" class="text-igLightGray hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- Profil Saat Ini -->
+            <div class="flex flex-col items-center space-y-2">
+                <img id="current-user-modal-avatar" src="https://placehold.co/150x150/0095F6/FFFFFF?text=G" class="w-20 h-20 rounded-full object-cover border-2 border-igBlue">
+                <p id="current-user-modal-name" class="font-bold text-white text-lg">Guest Siswa</p>
+                <p id="current-user-modal-handle" class="text-xs text-igLightGray">@guest_siswa</p>
+            </div>
+
+            <!-- Info API Status Badges -->
+            <div class="text-left bg-neutral-900 border border-igBorder p-3.5 rounded-xl space-y-2 text-xs">
+                <p class="font-semibold text-white border-b border-igBorder pb-1.5 flex items-center justify-between">
+                    <span>⚡ Konfigurasi Kunci API</span>
+                    <i class="fa-solid fa-code text-yellow-400"></i>
+                </p>
+                <p class="text-igLightGray text-[11px] leading-relaxed">
+                    Kunci API Supabase & Cloudinary telah dipasang langsung di dalam file HTML pada bagian tag <code class="text-igBlue">&lt;script&gt;</code> paling atas di variabel <code class="text-igBlue">SUPABASE_CONFIG</code> dan <code class="text-igBlue">CLOUDINARY_CONFIG</code>.
+                </p>
+            </div>
+
+            <!-- Switch Role Sekolah Presets -->
+            <div class="space-y-2">
+                <p class="text-xs text-igTextGray">Alih Peran Cepat (Simulasi):</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="switchUserRole('siswa')" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igLightGray hover:text-white">
+                        👩‍🎓 Siswa
+                    </button>
+                    <button onclick="switchUserRole('osis')" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igLightGray hover:text-white">
+                        🏆 OSIS
+                    </button>
+                    <button onclick="switchUserRole('guru')" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igLightGray hover:text-white">
+                        👨‍🏫 Guru
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tombol Sign Out / Keluar -->
+            <button onclick="handleLogout()" class="w-full bg-red-900/40 hover:bg-red-800/60 text-red-300 border border-red-500/50 py-2 rounded-lg font-semibold text-xs flex items-center justify-center space-x-2 transition">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Keluar Akun (Sign Out)</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 7: DAFTAR FOLLOWERS / FOLLOWING      -->
+    <!-- ========================================== -->
+    <div id="follow-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-black border border-igBorder rounded-xl w-full max-w-sm overflow-hidden flex flex-col max-h-[80vh]">
+            <div class="px-4 py-3 border-b border-igBorder flex justify-between items-center">
+                <div class="w-5"></div>
+                <h3 id="follow-modal-title" class="font-semibold text-white text-sm capitalize">Followers</h3>
+                <button onclick="closeFollowModal()" class="text-igLightGray hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="follow-modal-list" class="p-4 space-y-3 overflow-y-auto flex-1">
+                <!-- List followers/following dirender via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT & SUPABASE + CLOUDINARY LOGIC   -->
+    <!-- ========================================== -->
+    <script>
+/* =========================================================================
+   1. KONFIGURASI API (SUDAH TERPASANG)
+   ========================================================================= */
+const SUPABASE_CONFIG = {
+    url: "https://ncyppjddwywcbxxcylra.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jeXBwamRkd3l3Y2J4eGN5bHJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MjcwNTYsImV4cCI6MjEwODUwMzA1Nn0.S2v2ds67MVnFrrLuyWKLze9RgEVHUDg0NpUo2rm0lxM"
+};
+const CLOUDINARY_CONFIG = { cloudName: "v8rm5unr", uploadPreset: "v8rm5unr" };
+const MAX_VIDEO_SECONDS = 15;
+const STORY_IMAGE_MS = 5000;
+
+/* =========================================================================
+   2. HELPER & STATE
+   ========================================================================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ini = n => String(n || 'U').charAt(0).toUpperCase();
+const avatarFor = (txt, color = '0095F6') => `https://placehold.co/150x150/${color}/FFFFFF?text=${encodeURIComponent(txt)}`;
+
+function timeAgo(v) {
+    const d = new Date(v);
+    if (!v || isNaN(d)) return v || 'Baru saja';
+    const s = (Date.now() - d.getTime()) / 1000;
+    if (s < 60) return 'Baru saja';
+    if (s < 3600) return `${Math.floor(s / 60)} menit lalu`;
+    if (s < 86400) return `${Math.floor(s / 3600)} jam lalu`;
+    return `${Math.floor(s / 86400)} hari lalu`;
+}
+
+const USER_PRESETS = {
+    siswa: { demo: true, username: "guest_siswa", fullname: "Guest Siswa", role: "Siswa", avatar: avatarFor('G'), followers: ["guest_guru", "guest_perpus", "osis_official"], following: ["guest_osis"] },
+    osis:  { demo: true, username: "guest_osis", fullname: "Guest Pengurus OSIS", role: "OSIS", avatar: avatarFor('OSIS', '10B981'), followers: ["guest_siswa", "guest_guru", "guest_perpus"], following: ["guest_guru"] },
+    guru:  { demo: true, username: "guest_guru", fullname: "Guest Guru / Pembina", role: "Guru", avatar: avatarFor('G', '8B5CF6'), followers: ["guest_siswa", "guest_osis"], following: ["guest_siswa", "guest_osis", "guest_perpus"] }
+};
+const KNOWN_USERS_DB = {
+    guest_siswa: { username: "guest_siswa", fullname: "Guest Siswa SMAN 1", avatar: avatarFor('G') },
+    guest_osis: { username: "guest_osis", fullname: "Guest Pengurus OSIS", avatar: avatarFor('OSIS', '10B981') },
+    guest_guru: { username: "guest_guru", fullname: "Guest Guru / Pembina", avatar: avatarFor('G', '8B5CF6') },
+    guest_perpus: { username: "guest_perpus", fullname: "Perpustakaan Digital", avatar: avatarFor('LIB', 'EC4899') },
+    osis_official: { username: "osis_official", fullname: "OSIS Resmi SMAN 1", avatar: avatarFor('OS', '3B82F6') }
+};
+
+let supabaseClient = null, dbLive = false;
+let currentUser = null, isAuthenticated = false;
+let activeCategoryFilter = 'All', activeProfileTab = 'posts', activeCommentPostId = null, followModalType = 'followers';
+let postsData = [], storiesData = [], profilesMap = {};
+let selectedMediaFile = null, selectedMediaType = null, hashHandled = false;
+let savedIds = new Set(), viewedStories = new Set();
+try { savedIds = new Set(JSON.parse(localStorage.getItem('syn_saved') || '[]')); } catch (e) { /* storage tidak tersedia */ }
+
+const canSync = p => !!(supabaseClient && currentUser && currentUser.id && p && p.remote);
+
+let toastTimer = null;
+function showToast(message, type = 'info') {
+    const t = $('toast-notification'), m = $('toast-message'), ic = $('toast-icon');
+    if (!t || !m) return;
+    const cfg = { error: ['bg-red-600', 'fa-triangle-exclamation'], success: ['bg-emerald-600', 'fa-circle-check'], info: ['bg-igBlue', 'fa-circle-info'] }[type] || ['bg-igBlue', 'fa-circle-info'];
+    m.innerText = message;
+    ic.className = `fa-solid ${cfg[1]} text-base`;
+    t.className = `fixed bottom-16 md:bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl flex items-center space-x-3 border border-white/10 transition-all duration-300 max-w-[90vw] ${cfg[0]} translate-y-20 opacity-0`;
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove('translate-y-20', 'opacity-0')));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        t.classList.add('translate-y-20', 'opacity-0');
+        toastTimer = setTimeout(() => t.classList.add('hidden'), 300);
+    }, 3500);
+}
+
+/* =========================================================================
+   3. INISIALISASI
+   ========================================================================= */
+function bootstrap() {
+    try {
+        initSupabase();
+        loadSampleData();
+        checkAuthStatus();
+        loadRemoteData();
+    } catch (e) {
+        console.error('Bootstrap error:', e);
+        showToast('Terjadi kesalahan saat memuat aplikasi: ' + e.message, 'error');
+    }
+}
+window.addEventListener('DOMContentLoaded', bootstrap);
+
+document.addEventListener('keydown', e => {
+    if ($('story-viewer-modal').classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeStoryViewer();
+    if (e.key === 'ArrowRight') storyNav(1);
+    if (e.key === 'ArrowLeft') storyNav(-1);
+});
+
+function initSupabase() {
+    try {
+        if (window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
+            supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                // ditunda agar tidak memanggil Supabase di dalam callback auth (menghindari deadlock)
+                if (session && session.user) setTimeout(() => handleSession(session.user), 0);
+            });
+        }
+    } catch (e) {
+        console.warn('Supabase init error:', e);
+        supabaseClient = null;
+    }
+    updateApiStatusBadges();
+}
+
+function updateApiStatusBadges() {
+    const set = (id, live, text) => {
+        const el = $(id);
+        if (!el) return;
+        el.innerText = live ? text : 'Demo / Local';
+        el.className = 'px-2 py-0.5 rounded text-[10px] font-medium ' + (live ? 'bg-emerald-900/60 text-emerald-300' : 'bg-yellow-900/60 text-yellow-300');
+    };
+    set('supabase-status-badge', dbLive, 'Terhubung (Live)');
+    set('cloudinary-status-badge', !!(CLOUDINARY_CONFIG.cloudName && CLOUDINARY_CONFIG.uploadPreset), 'Terhubung (CDN)');
+}
+
+/* =========================================================================
+   4. SUPABASE: PROFIL, POSTS, LIKES, COMMENTS, FOLLOWERS
+   ========================================================================= */
+async function ensureProfile(user) {
+    const meta = user.user_metadata || {};
+    const { data: found } = await supabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (found) return found;
+    const base = String(meta.username || (user.email || 'user').split('@')[0]).toLowerCase().replace(/[^a-z0-9_.]/g, '') || 'user';
+    const full = { id: user.id, username: base, full_name: meta.full_name || meta.name || base, avatar_url: meta.avatar_url || avatarFor(ini(base)), role: meta.role || 'Siswa' };
+    const min = { id: full.id, username: base, full_name: full.full_name, avatar_url: full.avatar_url };
+    const attempts = [full, min, { ...min, username: base + Math.floor(100 + Math.random() * 900) }];
+    for (const row of attempts) {
+        const { data, error } = await supabaseClient.from('profiles').insert(row).select().maybeSingle();
+        if (!error) return data || row;
+        console.warn('Insert profil gagal:', error.message);
+    }
+    return full;
+}
+
+async function handleSession(user) {
+    if (currentUser && currentUser.id === user.id) return;
+    try {
+        const p = await ensureProfile(user);
+        currentUser = {
+            id: user.id, demo: false, username: p.username, fullname: p.full_name || p.username,
+            avatar: p.avatar_url || avatarFor(ini(p.username)), role: p.role || 'Siswa', followers: [], following: []
+        };
+        isAuthenticated = true;
+        await loadRemoteData();
+        checkAuthStatus();
+        showToast(`Berhasil masuk sebagai @${currentUser.username}`, 'success');
+    } catch (e) {
+        console.warn('handleSession error:', e);
+        showToast('Gagal memuat profil: ' + e.message, 'error');
+    }
+}
+
+async function loadRemoteData() {
+    if (!supabaseClient) return;
+    try {
+        const q = t => supabaseClient.from(t).select('*');
+        const [pr, po, li, co, fo] = await Promise.all([
+            q('profiles'), q('posts').order('created_at', { ascending: false }), q('likes'),
+            q('comments').order('created_at', { ascending: true }), q('followers')
+        ]);
+        if (po.error) throw po.error;
+        if (pr.error) throw pr.error;
+        profilesMap = {};
+        (pr.data || []).forEach(p => { profilesMap[p.id] = p; });
+        const uname = id => (profilesMap[id] && profilesMap[id].username) || 'pengguna';
+        const rows = po.data || [];
+        if (rows.length > 0 || (currentUser && !currentUser.demo)) {
+            postsData = rows.map(p => {
+                const pf = profilesMap[p.user_id] || {};
+                return {
+                    id: p.id, remote: true, userId: p.user_id, username: pf.username || 'pengguna',
+                    fullname: pf.full_name || pf.username || 'Pengguna', userAvatar: pf.avatar_url || avatarFor(ini(pf.username)),
+                    category: p.category || 'Kegiatan', caption: p.caption || '', mediaUrl: p.media_url,
+                    mediaType: p.media_type || 'image', createdAt: p.created_at,
+                    likes: (li.data || []).filter(l => l.post_id === p.id).map(l => uname(l.user_id)),
+                    comments: (co.data || []).filter(c => c.post_id === p.id).map(c => ({ id: c.id, username: uname(c.user_id), text: c.content ?? c.text ?? '' }))
+                };
+            });
+        }
+        if (currentUser && currentUser.id && fo.data) {
+            currentUser.followers = fo.data.filter(f => f.following_id === currentUser.id).map(f => uname(f.follower_id));
+            currentUser.following = fo.data.filter(f => f.follower_id === currentUser.id).map(f => uname(f.following_id));
+        }
+        dbLive = true;
+        await loadStories();
+    } catch (e) {
+        console.warn('Supabase belum bisa dibaca, memakai data lokal:', e.message || e);
+        dbLive = false;
+    }
+    updateApiStatusBadges();
+    if (isAuthenticated) { updateUserUI(); }
+    renderFeed(); renderStories(); renderProfileGrid(); renderSuggested();
+}
+
+async function loadStories() {
+    try {
+        const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+        const { data, error } = await supabaseClient.from('stories').select('*').gte('created_at', since).order('created_at', { ascending: false });
+        if (error) throw error;
+        if (data && data.length) {
+            const remote = data.map(s => {
+                const pf = profilesMap[s.user_id] || {};
+                return { id: s.id, remote: true, username: pf.username || s.username || 'pengguna', userAvatar: pf.avatar_url || s.user_avatar || avatarFor(ini(pf.username)), mediaUrl: s.media_url, mediaType: s.media_type || 'image', createdAt: s.created_at };
+            });
+            storiesData = [...storiesData.filter(s => s.local), ...remote];
+        }
+    } catch (e) {
+        console.info('Tabel "stories" opsional belum tersedia, story disimpan lokal.', e.message || e);
+    }
+}
+
+/* =========================================================================
+   5. CLOUDINARY UPLOAD & VALIDASI VIDEO
+   ========================================================================= */
+async function uploadToCloudinary(file) {
+    const type = file.type.startsWith('video/') ? 'video' : 'image';
+    try {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/${type}/upload`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.error && data.error.message) || res.statusText);
+        return { url: data.secure_url, type, local: false };
+    } catch (err) {
+        console.warn('Cloudinary error:', err);
+        showToast('Upload Cloudinary gagal (' + err.message + '). Memakai penyimpanan lokal sementara.', 'error');
+        const url = await new Promise(r => { const fr = new FileReader(); fr.onload = e => r(e.target.result); fr.readAsDataURL(file); });
+        return { url, type, local: true };
+    }
+}
+
+function getVideoDuration(file) {
+    return new Promise(resolve => {
+        const v = document.createElement('video');
+        v.preload = 'metadata';
+        v.onloadedmetadata = () => { URL.revokeObjectURL(v.src); resolve(v.duration); };
+        v.onerror = () => resolve(0);
+        v.src = URL.createObjectURL(file);
+    });
+}
+const isTooLong = async file => file.type.startsWith('video/') && (await getVideoDuration(file)) > MAX_VIDEO_SECONDS + 0.3;
+
+/* =========================================================================
+   6. DATA CONTOH (FALLBACK)
+   ========================================================================= */
+function loadSampleData() {
+    const ago = h => new Date(Date.now() - h * 3600 * 1000).toISOString();
+    postsData = [
+        { id: "post-1", username: "guest_guru", fullname: "Pak Hendra (Guru Pembina)", userAvatar: avatarFor('G', '8B5CF6'), category: "Pengumuman",
+          caption: "📢 PENGUMUMAN PENTING: Pelaksanaan Penilaian Akhir Semester (PAS) dimajukan minggu depan. Tetap semangat belajar semuanya! 📚📝",
+          mediaUrl: "https://placehold.co/800x600/1e293b/ffffff?text=Pengumuman+Ujian+PAS", mediaType: "image", createdAt: ago(2),
+          likes: ["guest_siswa", "guest_osis"], comments: [{ id: "c1", username: "guest_siswa", text: "Siap Pak, terima kasih informasinya!" }] },
+        { id: "post-2", username: "guest_osis", fullname: "Pengurus OSIS SMAN 1", userAvatar: avatarFor('OSIS', '10B981'), category: "OSIS & Ekskul",
+          caption: "🏆 Kemeriahan Final Turnamen Futsal Antar Kelas! Selamat untuk X-MIPA 2 atas juaranya! 🔥⚽",
+          mediaUrl: "https://placehold.co/800x600/065f46/ffffff?text=Turnamen+Futsal+Sekolah", mediaType: "image", createdAt: ago(5),
+          likes: ["guest_siswa", "guest_guru", "guest_perpus"], comments: [{ id: "c2", username: "guest_guru", text: "Selamat untuk pemenang! Jaga sportifitas selalu." }] }
+    ];
+    storiesData = [
+        { id: "story-1", username: "guest_osis", userAvatar: avatarFor('OSIS', '10B981'), mediaUrl: "https://placehold.co/600x1000/047857/ffffff?text=Rapat+OSIS+Sore+Ini", mediaType: "image", createdAt: ago(1) },
+        { id: "story-2", username: "guest_guru", userAvatar: avatarFor('G', '8B5CF6'), mediaUrl: "https://placehold.co/600x1000/6d28d9/ffffff?text=Suasana+Perpustakaan", mediaType: "image", createdAt: ago(3) }
+    ];
+}
+
+/* =========================================================================
+   7. AUTENTIKASI
+   ========================================================================= */
+function checkAuthStatus() {
+    if (isAuthenticated && currentUser) {
+        $('auth-screen').classList.add('hidden');
+        $('main-app-wrapper').classList.remove('hidden');
+        updateUserUI();
+        renderFeed(); renderStories(); renderProfileGrid(); renderSuggested();
+        if (!hashHandled && location.hash.startsWith('#post-')) { hashHandled = true; goToPost(location.hash.slice(6)); }
+    } else {
+        $('auth-screen').classList.remove('hidden');
+        $('main-app-wrapper').classList.add('hidden');
+    }
+}
+
+function setDemoUser(roleKey) {
+    currentUser = JSON.parse(JSON.stringify(USER_PRESETS[roleKey]));
+    isAuthenticated = true;
+}
+
+const cleanUsername = s => String(s || '').trim().replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_.]/g, '');
+
+async function handleAnonLogin(e) {
+    e.preventDefault();
+    const role = $('anon-role').value;
+    const username = cleanUsername($('anon-username').value) || 'anon_' + Math.floor(1000 + Math.random() * 9000);
+    const fullname = $('anon-fullname').value.trim() || username;
+    const btn = $('anon-submit-btn');
+    btn.disabled = true;
+    $('anon-submit-label').innerText = 'Masuk...';
+    try {
+        if (!supabaseClient) throw new Error('Supabase belum termuat');
+        const { error } = await supabaseClient.auth.signInAnonymously({ options: { data: { username, full_name: fullname, role } } });
+        if (error) throw error;
+        // sukses: profil dibuat & layar berganti otomatis lewat onAuthStateChange -> handleSession
+    } catch (err) {
+        console.warn('Login anonim gagal:', err);
+        currentUser = { demo: true, username, fullname, role, avatar: avatarFor(ini(username)), followers: [], following: [] };
+        isAuthenticated = true;
+        checkAuthStatus();
+        showToast('Login anonim Supabase gagal (' + err.message + '). Masuk mode demo lokal.', 'error');
+    }
+    btn.disabled = false;
+    $('anon-submit-label').innerText = 'Masuk Anonim';
+}
+
+function quickAuthLogin(roleKey) {
+    if (!USER_PRESETS[roleKey]) return;
+    setDemoUser(roleKey);
+    checkAuthStatus();
+    showToast(`Masuk sebagai @${currentUser.username}`, 'info');
+}
+
+async function handleLogout() {
+    if (currentUser && currentUser.id && !confirm('Akun anonim tidak bisa dipulihkan setelah keluar. Tetap keluar?')) return;
+    try { if (supabaseClient && currentUser && currentUser.id) await supabaseClient.auth.signOut(); } catch (e) { console.warn(e); }
+    isAuthenticated = false;
+    currentUser = null;
+    closeAccountModal();
+    checkAuthStatus();
+    showToast('Berhasil keluar akun', 'info');
+}
+
+async function switchUserRole(roleKey) {
+    if (!USER_PRESETS[roleKey]) return;
+    const role = USER_PRESETS[roleKey].role;
+    if (currentUser && currentUser.id) {
+        // Akun anonim asli: cukup ubah peran di profil, akun tidak hilang
+        currentUser.role = role;
+        const { error } = await supabaseClient.from('profiles').update({ role }).eq('id', currentUser.id);
+        if (error) showToast('Peran berubah lokal, gagal menyimpan: ' + error.message, 'error');
+        else showToast(`Peran diubah menjadi ${role}`, 'success');
+        updateUserUI();
+        closeAccountModal();
+        return;
+    }
+    setDemoUser(roleKey);
+    updateUserUI();
+    closeAccountModal();
+    renderFeed(); renderProfileGrid(); renderSuggested();
+    showToast(`Beralih akun ke @${currentUser.username}`, 'success');
+}
+
+function updateUserUI() {
+    if (!currentUser) return;
+    const u = currentUser;
+    ['sidebar-avatar', 'mobile-bottom-avatar', 'right-sidebar-avatar', 'profile-page-avatar', 'modal-post-avatar', 'story-my-avatar', 'current-user-modal-avatar'].forEach(id => { const el = $(id); if (el) el.src = u.avatar; });
+    $('sidebar-username-label').innerText = `@${u.username}`;
+    $('right-sidebar-username').innerText = u.username;
+    $('right-sidebar-fullname').innerText = u.fullname;
+    $('profile-page-username').innerText = `@${u.username}`;
+    $('profile-page-fullname').innerText = u.fullname;
+    $('profile-page-bio').innerText = `${u.role || 'Siswa'} • Komunitas Digital Sekolah 📚 SynapseSOFWA ✨`;
+    $('profile-followers-count').innerText = (u.followers || []).length;
+    $('profile-following-count').innerText = (u.following || []).length;
+    $('modal-post-username').innerText = u.username;
+    $('current-user-modal-name').innerText = u.fullname;
+    $('current-user-modal-handle').innerText = `@${u.username}${u.demo ? ' • mode demo' : ' • anonim'}`;
+}
+
+/* =========================================================================
+   8. NAVIGASI & FEED
+   ========================================================================= */
+function switchTab(tab) {
+    $('view-feed').classList.toggle('hidden', tab !== 'feed');
+    $('view-profile').classList.toggle('hidden', tab === 'feed');
+    if (tab !== 'feed') renderProfileGrid();
+    window.scrollTo({ top: 0 });
+}
+
+function filterCategory(category) {
+    activeCategoryFilter = category;
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.className = "category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0 transition";
+    });
+    const active = $(`cat-btn-${category}`);
+    if (active) active.className = "category-btn active bg-igBlue text-white px-3.5 py-1.5 rounded-full font-medium flex-shrink-0 transition";
+    switchTab('feed');
+    renderFeed();
+}
+
+function goToPost(id) {
+    filterCategory('All');
+    setTimeout(() => { const el = $('post-card-' + id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
+}
+
+function renderFeed() {
+    const container = $('feed-posts-container');
+    const empty = $('empty-feed-notice');
+    const list = activeCategoryFilter === 'All' ? postsData : postsData.filter(p => p.category === activeCategoryFilter);
+    container.innerHTML = '';
+    empty.classList.toggle('hidden', list.length > 0);
+
+    list.forEach(post => {
+        const liked = currentUser && post.likes.includes(currentUser.username);
+        const saved = savedIds.has(String(post.id));
+        const card = document.createElement('article');
+        card.className = 'bg-black border-y md:border border-igBorder md:rounded-xl overflow-hidden';
+        card.id = `post-card-${post.id}`;
+        card.innerHTML = `
+            <div class="flex items-center justify-between p-3.5">
+                <div class="flex items-center space-x-3">
+                    <img src="${esc(post.userAvatar)}" class="w-9 h-9 rounded-full object-cover border border-igBorder" alt="">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-sm text-white">@${esc(post.username)}</span>
+                            <span class="text-[10px] bg-neutral-800 text-igLightGray px-2 py-0.5 rounded-full font-medium border border-igBorder">${esc(post.category)}</span>
+                        </div>
+                        <p class="text-[11px] text-igTextGray">${esc(timeAgo(post.createdAt))}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-neutral-950 flex items-center justify-center cursor-pointer select-none" onclick="handlePostMediaClick('${post.id}')">
+                ${post.mediaType === 'video'
+                    ? `<video src="${esc(post.mediaUrl)}" controls playsinline preload="metadata" class="w-full max-h-[600px] object-contain"></video>`
+                    : `<img src="${esc(post.mediaUrl)}" class="w-full max-h-[600px] object-contain" alt="Media kiriman">`}
+                <div id="heart-burst-${post.id}" class="absolute inset-0 flex items-center justify-center pointer-events-none hidden">
+                    <i class="fa-solid fa-heart text-red-500 text-7xl drop-shadow-2xl animate-heart-pulse"></i>
+                </div>
+            </div>
+            <div class="p-3.5 space-y-2">
+                <div class="flex items-center justify-between text-2xl">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleLikePost('${post.id}')" class="transition transform active:scale-125"><i id="like-icon-${post.id}" class="${liked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart text-white hover:text-igLightGray'}"></i></button>
+                        <button onclick="openCommentModal('${post.id}')" class="text-white hover:text-igLightGray"><i class="fa-regular fa-comment"></i></button>
+                        <button onclick="sharePost('${post.id}')" class="text-white hover:text-igLightGray"><i class="fa-regular fa-paper-plane"></i></button>
+                    </div>
+                    <button onclick="toggleSavePost('${post.id}')" class="text-white hover:text-igLightGray"><i id="save-icon-${post.id}" class="${saved ? 'fa-solid fa-bookmark text-white' : 'fa-regular fa-bookmark'}"></i></button>
+                </div>
+                <p id="like-count-${post.id}" class="text-xs font-semibold text-white">${post.likes.length} menyukai</p>
+                <div class="text-xs leading-relaxed"><span class="font-semibold text-white mr-1.5">@${esc(post.username)}</span><span class="text-neutral-200">${esc(post.caption)}</span></div>
+                ${post.comments.length ? `<button onclick="openCommentModal('${post.id}')" class="text-xs text-igTextGray hover:underline block pt-1">Lihat semua ${post.comments.length} komentar</button>` : ''}
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+/* =========================================================================
+   9. INTERAKSI: LIKE, SIMPAN, SHARE
+   ========================================================================= */
+let lastTap = { id: null, time: 0 };
+function handlePostMediaClick(postId) {
+    const now = Date.now();
+    if (lastTap.id === postId && now - lastTap.time < 300) { toggleLikePost(postId, true); lastTap = { id: null, time: 0 }; return; }
+    lastTap = { id: postId, time: now };
+}
+
+function burstHeart(postId) {
+    const el = $('heart-burst-' + postId);
+    if (!el) return;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 700);
+}
+
+async function toggleLikePost(postId, fromDoubleTap = false) {
+    if (!currentUser) return;
+    const post = postsData.find(p => String(p.id) === String(postId));
+    if (!post) return;
+    const idx = post.likes.indexOf(currentUser.username);
+    const wasLiked = idx > -1;
+    if (fromDoubleTap && wasLiked) { burstHeart(post.id); return; }
+    if (wasLiked) post.likes.splice(idx, 1); else { post.likes.push(currentUser.username); burstHeart(post.id); }
+
+    const icon = $('like-icon-' + post.id), count = $('like-count-' + post.id);
+    if (icon) icon.className = wasLiked ? 'fa-regular fa-heart text-white hover:text-igLightGray' : 'fa-solid fa-heart text-red-500';
+    if (count) count.innerText = `${post.likes.length} menyukai`;
+
+    if (canSync(post)) {
+        const r = wasLiked
+            ? await supabaseClient.from('likes').delete().eq('post_id', post.id).eq('user_id', currentUser.id)
+            : await supabaseClient.from('likes').insert({ post_id: post.id, user_id: currentUser.id });
+        if (r.error) { console.warn('Sinkron like gagal:', r.error.message); showToast('Like tersimpan lokal saja: ' + r.error.message, 'error'); }
+    }
+}
+
+function toggleSavePost(postId) {
+    const key = String(postId), on = !savedIds.has(key);
+    if (on) savedIds.add(key); else savedIds.delete(key);
+    try { localStorage.setItem('syn_saved', JSON.stringify([...savedIds])); } catch (e) { /* abaikan */ }
+    const icon = $('save-icon-' + postId);
+    if (icon) icon.className = on ? 'fa-solid fa-bookmark text-white' : 'fa-regular fa-bookmark';
+    if (activeProfileTab === 'saved') renderProfileGrid();
+    showToast(on ? 'Kiriman disimpan' : 'Batal menyimpan kiriman', 'info');
+}
+
+async function sharePost(postId) {
+    const url = `${location.href.split('#')[0]}#post-${postId}`;
+    try {
+        if (navigator.share) { await navigator.share({ title: 'SynapseSOFWA', url }); return; }
+        await navigator.clipboard.writeText(url);
+        showToast('Tautan kiriman berhasil disalin!', 'success');
+    } catch (e) {
+        if (e.name !== 'AbortError') showToast('Tautan kiriman: ' + url, 'info');
+    }
+}
+
+/* =========================================================================
+   10. BUAT KIRIMAN (UPLOAD FOTO/VIDEO, VALIDASI 15 DETIK)
+   ========================================================================= */
+function setPostBusy(busy) {
+    $('submit-post-btn').disabled = busy;
+    $('submit-post-btn').classList.toggle('opacity-50', busy);
+    $('submit-post-spinner').classList.toggle('hidden', !busy);
+    $('submit-post-label').innerText = busy ? 'Mengunggah...' : 'Bagikan';
+}
+
+async function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    clearMediaSelection(false);
+    selectedMediaFile = file;
+    selectedMediaType = file.type.startsWith('video/') ? 'video' : 'image';
+    $('dropzone-prompt').classList.add('hidden');
+    $('media-preview-container').classList.remove('hidden');
+    const url = URL.createObjectURL(file);
+    const img = $('image-preview'), vid = $('video-preview');
+    img.classList.toggle('hidden', selectedMediaType === 'video');
+    vid.classList.toggle('hidden', selectedMediaType !== 'video');
+    (selectedMediaType === 'video' ? vid : img).src = url;
+
+    const tooLong = await isTooLong(file);
+    $('video-duration-warning').classList.toggle('hidden', !tooLong);
+    $('submit-post-btn').disabled = tooLong;
+    $('submit-post-btn').classList.toggle('opacity-50', tooLong);
+    if (tooLong) showToast(`Durasi video melebihi ${MAX_VIDEO_SECONDS} detik!`, 'error');
+}
+
+function clearMediaSelection(resetInput = true) {
+    selectedMediaFile = null;
+    selectedMediaType = null;
+    ['image-preview', 'video-preview'].forEach(id => {
+        const el = $(id);
+        if (el.src && el.src.startsWith('blob:')) URL.revokeObjectURL(el.src);
+        el.removeAttribute('src');
+        el.classList.add('hidden');
+    });
+    if (resetInput) $('media-file-input').value = '';
+    $('dropzone-prompt').classList.remove('hidden');
+    $('media-preview-container').classList.add('hidden');
+    $('video-duration-warning').classList.add('hidden');
+    $('submit-post-btn').disabled = false;
+    $('submit-post-btn').classList.remove('opacity-50');
+}
+
+async function submitPost() {
+    if (!currentUser) return;
+    const caption = $('post-caption').value.trim();
+    const category = $('post-category').value;
+    if (!selectedMediaFile && !caption) { showToast('Tulis keterangan atau pilih foto/video terlebih dahulu!', 'error'); return; }
+    if (selectedMediaFile && await isTooLong(selectedMediaFile)) { showToast(`Video maksimal ${MAX_VIDEO_SECONDS} detik!`, 'error'); return; }
+
+    setPostBusy(true);
+    try {
+        let media = { url: 'https://placehold.co/800x600/0284c7/ffffff?text=SynapseSOFWA', type: 'image', local: false };
+        if (selectedMediaFile) media = await uploadToCloudinary(selectedMediaFile);
+
+        const post = {
+            id: 'local-' + Date.now(), remote: false, userId: currentUser.id, username: currentUser.username, fullname: currentUser.fullname,
+            userAvatar: currentUser.avatar, category, caption: caption || 'Kegiatan sekolah terbaru di SynapseSOFWA.',
+            mediaUrl: media.url, mediaType: media.type, createdAt: new Date().toISOString(), likes: [], comments: []
+        };
+
+        if (supabaseClient && currentUser.id && !media.local) {
+            const { data, error } = await supabaseClient.from('posts')
+                .insert({ user_id: currentUser.id, caption: post.caption, category, media_url: post.mediaUrl, media_type: post.mediaType })
+                .select().single();
+            if (error) { console.warn('Insert post gagal:', error.message); showToast('Kiriman hanya tersimpan lokal: ' + error.message, 'error'); }
+            else { post.id = data.id; post.remote = true; post.createdAt = data.created_at || post.createdAt; }
+        }
+
+        postsData.unshift(post);
+        $('post-caption').value = '';
+        closeCreateModal();
+        renderFeed(); renderProfileGrid();
+        showToast('Kiriman baru berhasil dibagikan!', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Gagal membagikan kiriman: ' + e.message, 'error');
+    }
+    setPostBusy(false);
+}
+
+/* =========================================================================
+   11. STORY
+   ========================================================================= */
+function renderStories() {
+    const container = $('stories-container');
+    container.innerHTML = '';
+    const done = new Set();
+    storiesData.forEach(story => {
+        if (done.has(story.username)) return;
+        done.add(story.username);
+        const allSeen = storiesData.filter(s => s.username === story.username).every(s => viewedStories.has(String(s.id)));
+        const el = document.createElement('div');
+        el.className = 'flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer';
+        el.onclick = () => openStoryViewer(story.id);
+        el.innerHTML = `
+            <div class="w-16 h-16 rounded-full p-[2px] ${allSeen ? 'bg-neutral-700' : 'story-ring'} flex items-center justify-center">
+                <img src="${esc(story.userAvatar)}" class="w-full h-full rounded-full object-cover border-2 border-black" alt="">
+            </div>
+            <span class="text-xs text-igLightGray truncate w-16 text-center">@${esc(story.username)}</span>`;
+        container.appendChild(el);
+    });
+}
+
+async function submitStory() {
+    const input = $('story-file-input');
+    const file = input.files[0];
+    if (!file) { showToast('Pilih media untuk story terlebih dahulu!', 'error'); return; }
+    if (await isTooLong(file)) { showToast(`Video story maksimal ${MAX_VIDEO_SECONDS} detik!`, 'error'); return; }
+
+    const btn = $('submit-story-btn');
+    btn.disabled = true;
+    $('submit-story-spinner').classList.remove('hidden');
+    $('submit-story-label').innerText = 'Mengunggah...';
+    try {
+        const media = await uploadToCloudinary(file);
+        const story = { id: 'local-story-' + Date.now(), local: true, username: currentUser.username, userAvatar: currentUser.avatar, mediaUrl: media.url, mediaType: media.type, createdAt: new Date().toISOString() };
+        if (supabaseClient && currentUser.id && !media.local) {
+            const { data, error } = await supabaseClient.from('stories').insert({ user_id: currentUser.id, media_url: media.url, media_type: media.type }).select().maybeSingle();
+            if (error) console.info('Story tersimpan lokal (tabel stories belum ada):', error.message);
+            else if (data) { story.id = data.id; story.local = false; story.remote = true; }
+        }
+        storiesData.unshift(story);
+        input.value = '';
+        closeStoryUploadModal();
+        renderStories();
+        showToast('Story sekolah berhasil diunggah!', 'success');
+    } catch (e) { showToast('Gagal mengunggah story: ' + e.message, 'error'); }
+    btn.disabled = false;
+    $('submit-story-spinner').classList.add('hidden');
+    $('submit-story-label').innerText = 'Unggah Story';
+}
+
+let storyIdx = 0, storyTimer = null, storyDur = STORY_IMAGE_MS;
+function openStoryViewer(storyId) {
+    storyIdx = storiesData.findIndex(s => String(s.id) === String(storyId));
+    if (storyIdx < 0) return;
+    $('story-viewer-modal').classList.remove('hidden');
+    playStory();
+}
+
+function playStory() {
+    clearInterval(storyTimer);
+    const s = storiesData[storyIdx];
+    if (!s) { closeStoryViewer(); return; }
+    viewedStories.add(String(s.id));
+    $('story-viewer-avatar').src = s.userAvatar;
+    $('story-viewer-username').innerText = `@${s.username}`;
+    $('story-viewer-time').innerText = timeAgo(s.createdAt);
+    const img = $('story-viewer-img'), vid = $('story-viewer-video'), bar = $('story-progress-bar');
+    storyDur = STORY_IMAGE_MS;
+    if (s.mediaType === 'video') {
+        img.classList.add('hidden'); vid.classList.remove('hidden');
+        vid.onloadedmetadata = () => { storyDur = Math.min(vid.duration || MAX_VIDEO_SECONDS, MAX_VIDEO_SECONDS) * 1000; };
+        vid.src = s.mediaUrl;
+        vid.play().catch(() => {});
+    } else {
+        vid.pause(); vid.removeAttribute('src'); vid.classList.add('hidden');
+        img.classList.remove('hidden'); img.src = s.mediaUrl;
+    }
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    const t0 = Date.now();
+    storyTimer = setInterval(() => {
+        const pct = (Date.now() - t0) / storyDur * 100;
+        bar.style.width = Math.min(pct, 100) + '%';
+        if (pct >= 100) storyNav(1);
+    }, 50);
+}
+
+function storyNav(dir) {
+    storyIdx += dir;
+    if (storyIdx < 0) storyIdx = 0;
+    if (storyIdx >= storiesData.length) closeStoryViewer(); else playStory();
+}
+
+function closeStoryViewer() {
+    clearInterval(storyTimer);
+    $('story-viewer-modal').classList.add('hidden');
+    const vid = $('story-viewer-video');
+    vid.pause();
+    vid.removeAttribute('src');
+    renderStories();
+}
+
+/* =========================================================================
+   12. KOMENTAR
+   ========================================================================= */
+function openCommentModal(postId) {
+    activeCommentPostId = postId;
+    const post = postsData.find(p => String(p.id) === String(postId));
+    if (!post) return;
+    const box = $('comment-list-container');
+    box.innerHTML = post.comments.length ? '' : `<p class="text-center text-xs text-igTextGray py-12">Belum ada komentar. Jadilah yang pertama berkomentar!</p>`;
+    post.comments.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'flex items-start space-x-3 text-xs';
+        item.innerHTML = `
+            <div class="w-7 h-7 rounded-full bg-igBlue/20 text-igBlue font-bold flex items-center justify-center flex-shrink-0">${esc(ini(c.username))}</div>
+            <div class="flex-1 bg-neutral-900 p-2.5 rounded-lg border border-igBorder">
+                <span class="font-semibold text-white mr-1.5">@${esc(c.username)}</span><span class="text-neutral-200">${esc(c.text)}</span>
+            </div>`;
+        box.appendChild(item);
+    });
+    box.scrollTop = box.scrollHeight;
+    $('comment-modal').classList.remove('hidden');
+}
+
+function closeCommentModal() { $('comment-modal').classList.add('hidden'); activeCommentPostId = null; }
+
+async function handleAddComment(e) {
+    e.preventDefault();
+    if (!activeCommentPostId || !currentUser) return;
+    const input = $('comment-input-text');
+    const text = input.value.trim();
+    const post = postsData.find(p => String(p.id) === String(activeCommentPostId));
+    if (!text || !post) return;
+    post.comments.push({ id: 'c-' + Date.now(), username: currentUser.username, text });
+    input.value = '';
+    openCommentModal(post.id);
+    renderFeed();
+    if (canSync(post)) {
+        const { error } = await supabaseClient.from('comments').insert({ post_id: post.id, user_id: currentUser.id, content: text });
+        if (error) { console.warn(error.message); showToast('Komentar tersimpan lokal saja: ' + error.message, 'error'); return; }
+    }
+    showToast('Komentar terkirim', 'success');
+}
+
+/* =========================================================================
+   13. PENCARIAN
+   ========================================================================= */
+function allUsers() {
+    const real = Object.values(profilesMap).map(p => ({ username: p.username, fullname: p.full_name || p.username, avatar: p.avatar_url || avatarFor(ini(p.username)) }));
+    return real.length ? real : Object.values(KNOWN_USERS_DB);
+}
+const userInfo = u => allUsers().find(x => x.username === u) || KNOWN_USERS_DB[u] || { username: u, fullname: '@' + u, avatar: avatarFor(ini(u)) };
+
+function openSearchModal() {
+    $('search-modal').classList.remove('hidden');
+    $('search-input-query').value = '';
+    handleSearchQuery('');
+    $('search-input-query').focus();
+}
+function closeSearchModal() { $('search-modal').classList.add('hidden'); }
+
+function handleSearchQuery(query) {
+    const box = $('search-results-container');
+    const q = query.toLowerCase().trim();
+    if (!q) { box.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Ketik kata kunci untuk mencari di SynapseSOFWA...</p>`; return; }
+    const users = allUsers().filter(u => u.username.toLowerCase().includes(q) || u.fullname.toLowerCase().includes(q)).slice(0, 5);
+    const posts = postsData.filter(p => p.caption.toLowerCase().includes(q) || p.username.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+    box.innerHTML = '';
+    if (!users.length && !posts.length) { box.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Tidak ada hasil untuk "${esc(query)}"</p>`; return; }
+
+    users.forEach(u => {
+        const following = currentUser && currentUser.following.includes(u.username);
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2';
+        row.innerHTML = `
+            <div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full object-cover border border-igBorder" alt="">
+                <div class="text-xs"><p class="font-semibold text-white">@${esc(u.username)}</p><p class="text-igLightGray">${esc(u.fullname)}</p></div></div>
+            ${currentUser && u.username !== currentUser.username ? `<button onclick="toggleFollow('${esc(u.username)}'); handleSearchQuery($('search-input-query').value)" class="text-xs font-semibold ${following ? 'text-igLightGray' : 'text-igBlue'}">${following ? 'Mengikuti' : 'Ikuti'}</button>` : ''}`;
+        box.appendChild(row);
+    });
+    posts.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center space-x-3 p-2 hover:bg-neutral-900 rounded-lg cursor-pointer transition';
+        item.onclick = () => { closeSearchModal(); goToPost(p.id); };
+        item.innerHTML = `
+            ${p.mediaType === 'video' ? `<video src="${esc(p.mediaUrl)}" class="w-12 h-12 rounded object-cover" muted></video>` : `<img src="${esc(p.mediaUrl)}" class="w-12 h-12 rounded object-cover" alt="">`}
+            <div class="text-xs flex-1 min-w-0"><p class="font-semibold text-white">@${esc(p.username)} <span class="text-igTextGray font-normal">• ${esc(p.category)}</span></p>
+            <p class="text-igLightGray truncate mt-0.5">${esc(p.caption)}</p></div>`;
+        box.appendChild(item);
+    });
+}
+
+/* =========================================================================
+   14. PROFIL, GRID & FOLLOW
+   ========================================================================= */
+function switchProfileTab(tab) {
+    activeProfileTab = tab;
+    ['posts', 'reels', 'saved'].forEach(t => {
+        $('profile-tab-' + t).className = (t === tab ? 'py-3 text-white border-t-2 border-white' : 'py-3 text-igTextGray hover:text-white') + ' flex items-center space-x-2';
+    });
+    renderProfileGrid();
+}
+
+function renderProfileGrid() {
+    if (!currentUser) return;
+    const box = $('profile-grid-container');
+    const mine = postsData.filter(p => p.username === currentUser.username);
+    const items = activeProfileTab === 'posts' ? mine
+        : activeProfileTab === 'reels' ? mine.filter(p => p.mediaType === 'video')
+        : postsData.filter(p => savedIds.has(String(p.id)));
+    $('profile-post-count').innerText = mine.length;
+    $('empty-profile-grid').classList.toggle('hidden', items.length > 0);
+    box.innerHTML = '';
+    items.forEach(p => {
+        const cell = document.createElement('div');
+        cell.className = 'relative aspect-square bg-neutral-900 group cursor-pointer overflow-hidden rounded-md';
+        cell.onclick = () => goToPost(p.id);
+        cell.innerHTML = `
+            ${p.mediaType === 'video' ? `<video src="${esc(p.mediaUrl)}" class="w-full h-full object-cover" muted preload="metadata"></video><i class="fa-solid fa-clapperboard absolute top-2 right-2 text-white text-sm"></i>` : `<img src="${esc(p.mediaUrl)}" class="w-full h-full object-cover" alt="">`}
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-4 text-white font-semibold text-sm transition-opacity">
+                <span><i class="fa-solid fa-heart mr-1"></i>${p.likes.length}</span><span><i class="fa-solid fa-comment mr-1"></i>${p.comments.length}</span>
+            </div>`;
+        box.appendChild(cell);
+    });
+}
+
+function renderSuggested() {
+    const box = $('suggested-container');
+    if (!box || !currentUser) return;
+    box.innerHTML = allUsers().filter(u => u.username !== currentUser.username).slice(0, 5).map(u => {
+        const f = currentUser.following.includes(u.username);
+        return `<div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" class="w-9 h-9 rounded-full object-cover border border-igBorder" alt="">
+                <div class="text-xs"><p class="font-semibold text-white">@${esc(u.username)}</p><p class="text-igTextGray text-[11px] truncate max-w-[130px]">${esc(u.fullname)}</p></div></div>
+            <button onclick="toggleFollow('${esc(u.username)}')" class="text-xs font-semibold ${f ? 'text-igLightGray' : 'text-igBlue'} hover:text-white transition">${f ? 'Mengikuti' : 'Ikuti'}</button></div>`;
+    }).join('');
+}
+
+async function toggleFollow(target) {
+    if (!currentUser || target === currentUser.username) return;
+    const idx = currentUser.following.indexOf(target);
+    const wasFollowing = idx > -1;
+    if (wasFollowing) currentUser.following.splice(idx, 1); else currentUser.following.push(target);
+    updateUserUI(); renderSuggested();
+    if (!$('follow-modal').classList.contains('hidden')) openFollowModal(followModalType);
+
+    const prof = Object.values(profilesMap).find(p => p.username === target);
+    if (supabaseClient && currentUser.id && prof) {
+        const r = wasFollowing
+            ? await supabaseClient.from('followers').delete().eq('follower_id', currentUser.id).eq('following_id', prof.id)
+            : await supabaseClient.from('followers').insert({ follower_id: currentUser.id, following_id: prof.id });
+        if (r.error) { console.warn(r.error.message); showToast('Follow tersimpan lokal saja: ' + r.error.message, 'error'); }
+    }
+}
+
+function openFollowModal(type) {
+    if (!currentUser) return;
+    followModalType = type;
+    $('follow-modal-title').innerText = type === 'followers' ? 'Followers' : 'Following';
+    const box = $('follow-modal-list');
+    const names = (type === 'followers' ? currentUser.followers : currentUser.following) || [];
+    box.innerHTML = names.length ? '' : `<p class="text-center text-xs text-igTextGray py-8">Belum ada ${type}</p>`;
+    names.forEach(n => {
+        const u = userInfo(n);
+        const f = currentUser.following.includes(n);
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between py-1';
+        row.innerHTML = `
+            <div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full object-cover border border-igBorder" alt="">
+                <div class="text-xs"><p class="font-semibold text-white">@${esc(u.username)}</p><p class="text-igLightGray truncate max-w-[140px]">${esc(u.fullname)}</p></div></div>
+            ${n !== currentUser.username ? `<button onclick="toggleFollow('${esc(n)}')" class="${f ? 'bg-neutral-800 text-white border border-igBorder hover:bg-neutral-700' : 'bg-igBlue text-white hover:bg-igHoverBlue'} px-3 py-1.5 rounded-lg text-xs font-semibold transition">${f ? 'Mengikuti' : 'Ikuti'}</button>` : ''}`;
+        box.appendChild(row);
+    });
+    $('follow-modal').classList.remove('hidden');
+}
+
+/* =========================================================================
+   15. KONTROL MODAL
+   ========================================================================= */
+function closeFollowModal() { $('follow-modal').classList.add('hidden'); }
+function openCreateModal() { $('create-modal').classList.remove('hidden'); }
+function closeCreateModal() { $('create-modal').classList.add('hidden'); clearMediaSelection(); }
+function openStoryUploadModal() { $('story-upload-modal').classList.remove('hidden'); }
+function closeStoryUploadModal() { $('story-upload-modal').classList.add('hidden'); }
+function openAccountModal() { $('account-modal').classList.remove('hidden'); }
+function closeAccountModal() { $('account-modal').classList.add('hidden'); }
+    </script>
+</body>
+</html>
