@@ -100,90 +100,45 @@
                 <p class="text-xs text-igLightGray">Komunitas Media Sosial Resmi Sekolah</p>
             </div>
 
-            <!-- Tab Toggle (Sign In vs Sign Up) -->
-            <div class="flex border-b border-igBorder text-sm font-semibold">
-                <button id="tab-btn-login" onclick="switchAuthTab('login')" class="flex-1 py-2 text-center text-igBlue border-b-2 border-igBlue transition">
-                    Masuk (Sign In)
-                </button>
-                <button id="tab-btn-register" onclick="switchAuthTab('register')" class="flex-1 py-2 text-center text-igLightGray hover:text-white transition">
-                    Daftar (Sign Up)
-                </button>
-            </div>
-
-            <!-- FORM SIGN IN -->
-            <form id="auth-login-form" onsubmit="handleLogin(event)" class="space-y-4">
+            <!-- Form Masuk Anonim (tanpa email & kata sandi) -->
+            <form id="anon-login-form" onsubmit="handleAnonLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Email (akun Supabase) / Username (demo)</label>
-                    <input type="text" id="login-identifier" placeholder="guest_siswa atau email@sekolah.sch.id" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Nama Tampilan (opsional)</label>
+                    <input type="text" id="anon-fullname" maxlength="40" placeholder="Ahmad Subagja" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Kata Sandi</label>
-                    <input type="password" id="login-password" placeholder="••••••••" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
-                </div>
-                <button type="submit" class="w-full bg-igBlue hover:bg-igHoverBlue text-white py-2.5 rounded-lg font-semibold text-sm transition">
-                    Masuk ke SynapseSOFWA
-                </button>
-            </form>
-
-            <!-- FORM SIGN UP -->
-            <form id="auth-register-form" onsubmit="handleRegister(event)" class="hidden space-y-3">
-                <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Nama Lengkap</label>
-                    <input type="text" id="reg-fullname" placeholder="Ahmad Subagja" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Username Sekolah</label>
-                    <input type="text" id="reg-username" placeholder="ahmad_siswa" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Email</label>
-                    <input type="email" id="reg-email" placeholder="nama@sekolah.sch.id" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Username (opsional)</label>
+                    <input type="text" id="anon-username" maxlength="20" placeholder="ahmad_siswa" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-igLightGray mb-1">Peran Sekolah</label>
-                    <select id="reg-role" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
-                        <option value="Siswa"> Siswa Kelas X / XI / XII</option>
-                        <option value="OSIS"> Pengurus OSIS / Ekskul</option>
-                        <option value="Guru"> Guru / Tenaga Pendidik</option>
+                    <select id="anon-role" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                        <option value="Siswa">Siswa Kelas X / XI / XII</option>
+                        <option value="OSIS">Pengurus OSIS / Ekskul</option>
+                        <option value="Guru">Guru / Tenaga Pendidik</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Kata Sandi</label>
-                    <input type="password" id="reg-password" placeholder="Minimal 6 karakter" minlength="6" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
-                </div>
-                <button type="submit" class="w-full bg-igBlue hover:bg-igHoverBlue text-white py-2.5 rounded-lg font-semibold text-sm transition">
-                    Buat Akun Baru
+                <button type="submit" id="anon-submit-btn" class="w-full bg-igBlue hover:bg-igHoverBlue disabled:opacity-60 text-white py-2.5 rounded-lg font-semibold text-sm transition">
+                    <span id="anon-submit-label">Masuk Anonim</span>
                 </button>
+                <p class="text-[11px] text-igTextGray text-center leading-relaxed">Tanpa email dan kata sandi. Akun tersimpan di perangkat ini dan tidak bisa dipulihkan setelah keluar.</p>
             </form>
 
-            <!-- Divider -->
             <div class="relative flex py-1 items-center">
                 <div class="flex-grow border-t border-igBorder"></div>
                 <span class="flex-shrink mx-3 text-[11px] text-igTextGray uppercase font-semibold">Atau</span>
                 <div class="flex-grow border-t border-igBorder"></div>
             </div>
 
-            <!-- Quick Demo Login Presets -->
+            <!-- Akun simulasi lokal (tanpa database) -->
             <div class="space-y-2">
-                <p class="text-xs text-center text-igLightGray">Masuk cepat akun simulasi (Tanpa password):</p>
+                <p class="text-xs text-center text-igLightGray">Coba cepat dengan akun simulasi lokal:</p>
                 <div class="grid grid-cols-3 gap-2">
-                    <button onclick="quickAuthLogin('siswa')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igLightGray hover:text-white transition">
-                         Siswa
-                    </button>
-                    <button onclick="quickAuthLogin('osis')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igBlue hover:text-white transition">
-                         OSIS
-                    </button>
-                    <button onclick="quickAuthLogin('guru')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-purple-400 hover:text-white transition">
-                         Guru
-                    </button>
+                    <button onclick="quickAuthLogin('siswa')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igLightGray hover:text-white transition">Siswa</button>
+                    <button onclick="quickAuthLogin('osis')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-igBlue hover:text-white transition">OSIS</button>
+                    <button onclick="quickAuthLogin('guru')" type="button" class="p-2 border border-igBorder rounded-lg text-xs hover:border-igBlue text-purple-400 hover:text-white transition">Guru</button>
                 </div>
             </div>
-
-            <!-- Google OAuth Login Button -->
-            <button onclick="loginWithGoogle()" type="button" class="w-full bg-neutral-900 hover:bg-neutral-800 text-white border border-igBorder py-2 rounded-lg text-xs font-semibold flex items-center justify-center space-x-2 transition">
-                <i class="fa-brands fa-google text-red-500"></i>
-                <span>Masuk dengan Google (Supabase Auth)</span>
-            </button>
         </div>
     </div>
 
@@ -956,54 +911,35 @@ function checkAuthStatus() {
     }
 }
 
-function switchAuthTab(tab) {
-    const on = "flex-1 py-2 text-center text-igBlue border-b-2 border-igBlue transition";
-    const off = "flex-1 py-2 text-center text-igLightGray hover:text-white transition";
-    $('auth-login-form').classList.toggle('hidden', tab !== 'login');
-    $('auth-register-form').classList.toggle('hidden', tab === 'login');
-    $('tab-btn-login').className = tab === 'login' ? on : off;
-    $('tab-btn-register').className = tab === 'login' ? off : on;
-}
-
 function setDemoUser(roleKey) {
     currentUser = JSON.parse(JSON.stringify(USER_PRESETS[roleKey]));
     isAuthenticated = true;
 }
 
-async function handleLogin(e) {
-    e.preventDefault();
-    const id = $('login-identifier').value.trim();
-    const pw = $('login-password').value;
-    if (supabaseClient && id.includes('@') && !id.startsWith('@')) {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email: id, password: pw });
-        if (error) showToast('Gagal masuk: ' + error.message, 'error');
-        return; // sukses ditangani onAuthStateChange
-    }
-    const name = (id.startsWith('@') ? id.slice(1) : id.split('@')[0]).replace(/[^a-zA-Z0-9_.]/g, '') || 'siswa';
-    currentUser = { demo: true, username: name, fullname: `${name} (Siswa)`, role: 'Siswa', avatar: avatarFor(ini(name)), followers: ["guest_guru", "guest_perpus", "osis_official"], following: ["guest_osis"] };
-    isAuthenticated = true;
-    checkAuthStatus();
-    showToast(`Masuk mode demo sebagai @${name}. Gunakan email untuk akun Supabase.`, 'info');
-}
+const cleanUsername = s => String(s || '').trim().replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_.]/g, '');
 
-async function handleRegister(e) {
+async function handleAnonLogin(e) {
     e.preventDefault();
-    const fullname = $('reg-fullname').value.trim();
-    const username = $('reg-username').value.trim().replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_.]/g, '');
-    const email = $('reg-email').value.trim();
-    const role = $('reg-role').value;
-    const password = $('reg-password').value;
-    if (!username) { showToast('Username hanya boleh huruf, angka, titik, dan garis bawah.', 'error'); return; }
-    if (supabaseClient) {
-        const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username, full_name: fullname, role } } });
-        if (error) { showToast('Gagal mendaftar: ' + error.message, 'error'); return; }
-        if (!data.session) { showToast('Akun dibuat. Cek email untuk konfirmasi, lalu masuk.', 'success'); switchAuthTab('login'); }
-        return;
+    const role = $('anon-role').value;
+    const username = cleanUsername($('anon-username').value) || 'anon_' + Math.floor(1000 + Math.random() * 9000);
+    const fullname = $('anon-fullname').value.trim() || username;
+    const btn = $('anon-submit-btn');
+    btn.disabled = true;
+    $('anon-submit-label').innerText = 'Masuk...';
+    try {
+        if (!supabaseClient) throw new Error('Supabase belum termuat');
+        const { error } = await supabaseClient.auth.signInAnonymously({ options: { data: { username, full_name: fullname, role } } });
+        if (error) throw error;
+        // sukses: profil dibuat & layar berganti otomatis lewat onAuthStateChange -> handleSession
+    } catch (err) {
+        console.warn('Login anonim gagal:', err);
+        currentUser = { demo: true, username, fullname, role, avatar: avatarFor(ini(username)), followers: [], following: [] };
+        isAuthenticated = true;
+        checkAuthStatus();
+        showToast('Login anonim Supabase gagal (' + err.message + '). Masuk mode demo lokal.', 'error');
     }
-    currentUser = { demo: true, username, fullname: `${fullname} - ${role}`, role, avatar: avatarFor(ini(username), '10B981'), followers: ["guest_guru"], following: [] };
-    isAuthenticated = true;
-    checkAuthStatus();
-    showToast('Akun demo berhasil dibuat!', 'success');
+    btn.disabled = false;
+    $('anon-submit-label').innerText = 'Masuk Anonim';
 }
 
 function quickAuthLogin(roleKey) {
@@ -1014,6 +950,7 @@ function quickAuthLogin(roleKey) {
 }
 
 async function handleLogout() {
+    if (currentUser && currentUser.id && !confirm('Akun anonim tidak bisa dipulihkan setelah keluar. Tetap keluar?')) return;
     try { if (supabaseClient && currentUser && currentUser.id) await supabaseClient.auth.signOut(); } catch (e) { console.warn(e); }
     isAuthenticated = false;
     currentUser = null;
@@ -1022,18 +959,19 @@ async function handleLogout() {
     showToast('Berhasil keluar akun', 'info');
 }
 
-async function loginWithGoogle() {
-    if (!supabaseClient) { showToast('Supabase belum termuat. Memakai simulasi login.', 'info'); quickAuthLogin('siswa'); return; }
-    if (location.protocol === 'file:') { showToast('Google OAuth butuh http(s). Buka lewat hosting/localhost, bukan file://.', 'error'); return; }
-    try {
-        const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.href.split('#')[0] } });
-        if (error) throw error;
-    } catch (e) { showToast('Google Auth Error: ' + e.message, 'error'); }
-}
-
 async function switchUserRole(roleKey) {
     if (!USER_PRESETS[roleKey]) return;
-    if (supabaseClient && currentUser && currentUser.id) { try { await supabaseClient.auth.signOut(); } catch (e) { /* abaikan */ } }
+    const role = USER_PRESETS[roleKey].role;
+    if (currentUser && currentUser.id) {
+        // Akun anonim asli: cukup ubah peran di profil, akun tidak hilang
+        currentUser.role = role;
+        const { error } = await supabaseClient.from('profiles').update({ role }).eq('id', currentUser.id);
+        if (error) showToast('Peran berubah lokal, gagal menyimpan: ' + error.message, 'error');
+        else showToast(`Peran diubah menjadi ${role}`, 'success');
+        updateUserUI();
+        closeAccountModal();
+        return;
+    }
     setDemoUser(roleKey);
     updateUserUI();
     closeAccountModal();
@@ -1055,7 +993,7 @@ function updateUserUI() {
     $('profile-following-count').innerText = (u.following || []).length;
     $('modal-post-username').innerText = u.username;
     $('current-user-modal-name').innerText = u.fullname;
-    $('current-user-modal-handle').innerText = `@${u.username}${u.demo ? ' • mode demo' : ''}`;
+    $('current-user-modal-handle').innerText = `@${u.username}${u.demo ? ' • mode demo' : ' • anonim'}`;
 }
 
 /* =========================================================================
