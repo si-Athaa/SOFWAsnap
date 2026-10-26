@@ -113,7 +113,7 @@
             <!-- FORM SIGN IN -->
             <form id="auth-login-form" onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-igLightGray mb-1">Username / Email Sekolah</label>
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Email (akun Supabase) / Username (demo)</label>
                     <input type="text" id="login-identifier" placeholder="guest_siswa atau email@sekolah.sch.id" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-igBlue transition">
                 </div>
                 <div>
@@ -136,6 +136,10 @@
                     <input type="text" id="reg-username" placeholder="ahmad_siswa" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
                 </div>
                 <div>
+                    <label class="block text-xs font-medium text-igLightGray mb-1">Email</label>
+                    <input type="email" id="reg-email" placeholder="nama@sekolah.sch.id" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                </div>
+                <div>
                     <label class="block text-xs font-medium text-igLightGray mb-1">Peran Sekolah</label>
                     <select id="reg-role" class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
                         <option value="Siswa"> Siswa Kelas X / XI / XII</option>
@@ -145,7 +149,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-igLightGray mb-1">Kata Sandi</label>
-                    <input type="password" id="reg-password" placeholder="Buat kata sandi baru" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
+                    <input type="password" id="reg-password" placeholder="Minimal 6 karakter" minlength="6" required class="w-full bg-neutral-900 border border-igBorder rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-igBlue transition">
                 </div>
                 <button type="submit" class="w-full bg-igBlue hover:bg-igHoverBlue text-white py-2.5 rounded-lg font-semibold text-sm transition">
                     Buat Akun Baru
@@ -331,7 +335,7 @@
                             <!-- Bio & Nama Sekolah -->
                             <div class="text-sm">
                                 <p id="profile-page-fullname" class="font-semibold text-white">Guest Siswa - SMAN 1 Digital Campus</p>
-                                <p class="text-igLightGray mt-0.5">Komunitas Digital Sekolah 📚 | Akun Resmi SynapseSOFWA ✨</p>
+                                <p id="profile-page-bio" class="text-igLightGray mt-0.5">Komunitas Digital Sekolah 📚 | Akun Resmi SynapseSOFWA ✨</p>
                             </div>
                         </div>
                     </div>
@@ -402,46 +406,7 @@
                         <a href="#" onclick="openSearchModal()" class="text-white hover:text-igLightGray font-semibold">Cari Siswa</a>
                     </div>
 
-                    <div class="space-y-3 pt-1">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-9 h-9 rounded-full bg-blue-900/60 border border-igBlue flex items-center justify-center text-xs font-bold text-igBlue">
-                                    OSIS
-                                </div>
-                                <div class="text-xs">
-                                    <p class="font-semibold text-white">@guest_osis</p>
-                                    <p class="text-igTextGray text-[11px]">Pengurus OSIS (Guest)</p>
-                                </div>
-                            </div>
-                            <button onclick="toggleFollow('guest_osis')" id="sidebar-follow-btn-guest_osis" class="text-xs font-semibold text-igBlue hover:text-white transition">Ikuti</button>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-9 h-9 rounded-full bg-purple-900/60 border border-purple-500 flex items-center justify-center text-xs font-bold text-purple-400">
-                                    GURU
-                                </div>
-                                <div class="text-xs">
-                                    <p class="font-semibold text-white">@guest_guru</p>
-                                    <p class="text-igTextGray text-[11px]">Pembina (Guest Guru)</p>
-                                </div>
-                            </div>
-                            <button onclick="toggleFollow('guest_guru')" id="sidebar-follow-btn-guest_guru" class="text-xs font-semibold text-igBlue hover:text-white transition">Ikuti</button>
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-9 h-9 rounded-full bg-pink-900/60 border border-pink-500 flex items-center justify-center text-xs font-bold text-pink-400">
-                                    PERPUS
-                                </div>
-                                <div class="text-xs">
-                                    <p class="font-semibold text-white">@guest_perpus</p>
-                                    <p class="text-igTextGray text-[11px]">Perpustakaan Digital</p>
-                                </div>
-                            </div>
-                            <button onclick="toggleFollow('guest_perpus')" id="sidebar-follow-btn-guest_perpus" class="text-xs font-semibold text-igBlue hover:text-white transition">Ikuti</button>
-                        </div>
-                    </div>
+                    <div id="suggested-container" class="space-y-3 pt-1"></div>
                 </div>
 
                 <!-- Footer Links -->
@@ -593,7 +558,8 @@
             <!-- Content Area Story -->
             <div class="w-full h-full flex items-center justify-center bg-black relative">
                 <img id="story-viewer-img" class="hidden max-h-full max-w-full object-contain">
-                <video id="story-viewer-video" autoplay loop muted class="hidden max-h-full max-w-full object-contain"></video>
+                <video id="story-viewer-video" autoplay playsinline muted class="hidden max-h-full max-w-full object-contain"></video>
+                <div class="absolute inset-0 flex z-10 pt-20"><div class="w-1/3 h-full cursor-pointer" onclick="storyNav(-1)"></div><div class="w-2/3 h-full cursor-pointer" onclick="storyNav(1)"></div></div>
             </div>
         </div>
     </div>
@@ -707,1163 +673,902 @@
     <!-- JAVASCRIPT & SUPABASE + CLOUDINARY LOGIC   -->
     <!-- ========================================== -->
     <script>
-        /* =========================================================================
-           1. PASANG KUNCI API SUPABASE & CLOUDINARY ANDA LANGSUNG DI BAWAH INI
-           ========================================================================= */
+/* =========================================================================
+   1. KONFIGURASI API (SUDAH TERPASANG)
+   ========================================================================= */
+const SUPABASE_CONFIG = {
+    url: "https://ncyppjddwywcbxxcylra.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jeXBwamRkd3l3Y2J4eGN5bHJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MjcwNTYsImV4cCI6MjEwODUwMzA1Nn0.S2v2ds67MVnFrrLuyWKLze9RgEVHUDg0NpUo2rm0lxM"
+};
+const CLOUDINARY_CONFIG = { cloudName: "v8rm5unr", uploadPreset: "v8rm5unr" };
+const MAX_VIDEO_SECONDS = 15;
+const STORY_IMAGE_MS = 5000;
 
-        let SUPABASE_CONFIG = {
-            url: "https://ncyppjddwywcbxxcylra.supabase.co", // <-- MASUKKAN URL SUPABASE DI SINI
-            anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jeXBwamRkd3l3Y2J4eGN5bHJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI5MjcwNTYsImV4cCI6MjEwODUwMzA1Nn0.S2v2ds67MVnFrrLuyWKLze9RgEVHUDg0NpUo2rm0lxM"               // <-- MASUKKAN ANON KEY SUPABASE DI SINI
-        };
+/* =========================================================================
+   2. HELPER & STATE
+   ========================================================================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ini = n => String(n || 'U').charAt(0).toUpperCase();
+const avatarFor = (txt, color = '0095F6') => `https://placehold.co/150x150/${color}/FFFFFF?text=${encodeURIComponent(txt)}`;
 
-        let CLOUDINARY_CONFIG = {
-            cloudName: "v8rm5unr",                  // <-- MASUKKAN CLOUD NAME CLOUDINARY DI SINI
-            uploadPreset: "v8rm5unr"           // <-- MASUKKAN UPLOAD PRESET CLOUDINARY DI SINI
-        };
+function timeAgo(v) {
+    const d = new Date(v);
+    if (!v || isNaN(d)) return v || 'Baru saja';
+    const s = (Date.now() - d.getTime()) / 1000;
+    if (s < 60) return 'Baru saja';
+    if (s < 3600) return `${Math.floor(s / 60)} menit lalu`;
+    if (s < 86400) return `${Math.floor(s / 3600)} jam lalu`;
+    return `${Math.floor(s / 86400)} hari lalu`;
+}
 
-        /* -------------------------------------------------------------
-           2. STATE MANAGEMENT & PRESETS
-           ------------------------------------------------------------- */
-        let supabaseClient = null;
-        let isAuthenticated = false;
-        let activeCategoryFilter = 'All';
-        let activeProfileTab = 'posts';
-        let activeCommentPostId = null;
-        let storyProgressTimer = null;
+const USER_PRESETS = {
+    siswa: { demo: true, username: "guest_siswa", fullname: "Guest Siswa", role: "Siswa", avatar: avatarFor('G'), followers: ["guest_guru", "guest_perpus", "osis_official"], following: ["guest_osis"] },
+    osis:  { demo: true, username: "guest_osis", fullname: "Guest Pengurus OSIS", role: "OSIS", avatar: avatarFor('OSIS', '10B981'), followers: ["guest_siswa", "guest_guru", "guest_perpus"], following: ["guest_guru"] },
+    guru:  { demo: true, username: "guest_guru", fullname: "Guest Guru / Pembina", role: "Guru", avatar: avatarFor('G', '8B5CF6'), followers: ["guest_siswa", "guest_osis"], following: ["guest_siswa", "guest_osis", "guest_perpus"] }
+};
+const KNOWN_USERS_DB = {
+    guest_siswa: { username: "guest_siswa", fullname: "Guest Siswa SMAN 1", avatar: avatarFor('G') },
+    guest_osis: { username: "guest_osis", fullname: "Guest Pengurus OSIS", avatar: avatarFor('OSIS', '10B981') },
+    guest_guru: { username: "guest_guru", fullname: "Guest Guru / Pembina", avatar: avatarFor('G', '8B5CF6') },
+    guest_perpus: { username: "guest_perpus", fullname: "Perpustakaan Digital", avatar: avatarFor('LIB', 'EC4899') },
+    osis_official: { username: "osis_official", fullname: "OSIS Resmi SMAN 1", avatar: avatarFor('OS', '3B82F6') }
+};
 
-        // User Presets Simulasi
-        const USER_PRESETS = {
-            siswa: {
-                username: "guest_siswa",
-                fullname: "Guest Siswa ",
-                avatar: "https://placehold.co/150x150/0095F6/FFFFFF?text=G",
-                followers: ["guest_guru", "guest_perpus", "osis_official"],
-                following: ["guest_osis"]
-            },
-            osis: {
-                username: "guest_osis",
-                fullname: "Guest Pengurus OSIS",
-                avatar: "https://placehold.co/150x150/10B981/FFFFFF?text=OSIS",
-                followers: ["guest_siswa", "guest_guru", "guest_perpus"],
-                following: ["guest_guru"]
-            },
-            guru: {
-                username: "guest_guru",
-                fullname: "Guest Guru / Pembina",
-                avatar: "https://placehold.co/150x150/8B5CF6/FFFFFF?text=G",
-                followers: ["guest_siswa", "guest_osis"],
-                following: ["guest_siswa", "guest_osis", "guest_perpus"]
-            }
-        };
+let supabaseClient = null, dbLive = false;
+let currentUser = null, isAuthenticated = false;
+let activeCategoryFilter = 'All', activeProfileTab = 'posts', activeCommentPostId = null, followModalType = 'followers';
+let postsData = [], storiesData = [], profilesMap = {};
+let selectedMediaFile = null, selectedMediaType = null, hashHandled = false;
+let savedIds = new Set(), viewedStories = new Set();
+try { savedIds = new Set(JSON.parse(localStorage.getItem('syn_saved') || '[]')); } catch (e) { /* storage tidak tersedia */ }
 
-        const KNOWN_USERS_DB = {
-            guest_siswa: { username: "guest_siswa", fullname: "Guest Siswa SMAN 1", avatar: "https://placehold.co/150x150/0095F6/FFFFFF?text=G" },
-            guest_osis: { username: "guest_osis", fullname: "Guest Pengurus OSIS", avatar: "https://placehold.co/150x150/10B981/FFFFFF?text=OSIS" },
-            guest_guru: { username: "guest_guru", fullname: "Guest Guru / Pembina", avatar: "https://placehold.co/150x150/8B5CF6/FFFFFF?text=G" },
-            guest_perpus: { username: "guest_perpus", fullname: "Perpustakaan Digital", avatar: "https://placehold.co/150x150/EC4899/FFFFFF?text=LIB" },
-            osis_official: { username: "osis_official", fullname: "OSIS Resmi SMAN 1", avatar: "https://placehold.co/150x150/3B82F6/FFFFFF?text=OS" }
-        };
+const canSync = p => !!(supabaseClient && currentUser && currentUser.id && p && p.remote);
 
-        let currentUser = null;
+let toastTimer = null;
+function showToast(message, type = 'info') {
+    const t = $('toast-notification'), m = $('toast-message'), ic = $('toast-icon');
+    if (!t || !m) return;
+    const cfg = { error: ['bg-red-600', 'fa-triangle-exclamation'], success: ['bg-emerald-600', 'fa-circle-check'], info: ['bg-igBlue', 'fa-circle-info'] }[type] || ['bg-igBlue', 'fa-circle-info'];
+    m.innerText = message;
+    ic.className = `fa-solid ${cfg[1]} text-base`;
+    t.className = `fixed bottom-16 md:bottom-6 left-1/2 -translate-x-1/2 z-[70] px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl flex items-center space-x-3 border border-white/10 transition-all duration-300 max-w-[90vw] ${cfg[0]} translate-y-20 opacity-0`;
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.remove('translate-y-20', 'opacity-0')));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        t.classList.add('translate-y-20', 'opacity-0');
+        toastTimer = setTimeout(() => t.classList.add('hidden'), 300);
+    }, 3500);
+}
 
-        // Post & Story Data Array
-        let postsData = [];
-        let storiesData = [];
-        let selectedMediaFile = null;
-        let selectedMediaType = null;
+/* =========================================================================
+   3. INISIALISASI
+   ========================================================================= */
+function bootstrap() {
+    try {
+        initSupabase();
+        loadSampleData();
+        checkAuthStatus();
+        loadRemoteData();
+    } catch (e) {
+        console.error('Bootstrap error:', e);
+        showToast('Terjadi kesalahan saat memuat aplikasi: ' + e.message, 'error');
+    }
+}
+window.addEventListener('DOMContentLoaded', bootstrap);
 
-        /* -------------------------------------------------------------
-           3. INITIALIZATION ON LOAD
-           ------------------------------------------------------------- */
-        window.onload = function() {
-            initSupabase();
-            updateApiStatusBadges();
-            
-            // Auto-login default preset to speed up preview
-            quickAuthLogin('siswa');
-        };
+document.addEventListener('keydown', e => {
+    if ($('story-viewer-modal').classList.contains('hidden')) return;
+    if (e.key === 'Escape') closeStoryViewer();
+    if (e.key === 'ArrowRight') storyNav(1);
+    if (e.key === 'ArrowLeft') storyNav(-1);
+});
 
-        showToast(message, type = 'info') {
-            document.getElementById('input-cfg-supabase-url').value = SUPABASE_CONFIG.url.includes("your-supabase") ? "" : SUPABASE_CONFIG.url;
-            document.getElementById('input-cfg-supabase-key').value = SUPABASE_CONFIG.anonKey.includes("your-supabase") ? "" : SUPABASE_CONFIG.anonKey;
-            document.getElementById('input-cfg-cloudinary-name').value = CLOUDINARY_CONFIG.cloudName.includes("your_cloud") ? "" : CLOUDINARY_CONFIG.cloudName;
-            document.getElementById('input-cfg-cloudinary-preset').value = CLOUDINARY_CONFIG.uploadPreset.includes("your_unsigned") ? "" : CLOUDINARY_CONFIG.uploadPreset;
-
-            initSupabase();
-            updateApiStatusBadges();
-            
-            // Auto-login default preset to speed up preview
-            quickAuthLogin('siswa');
-        };
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast-notification');
-            const toastMsg = document.getElementById('toast-message');
-            const toastIcon = document.getElementById('toast-icon');
-            if (!toast || !toastMsg) return;
-
-            toastMsg.innerText = message;
-            toast.className = "fixed bottom-16 md:bottom-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 transform px-5 py-3 rounded-xl text-white text-xs font-semibold shadow-2xl flex items-center space-x-3 border border-white/10 ";
-            
-            if (type === 'error') {
-                toast.classList.add('bg-red-600');
-                toastIcon.className = 'fa-solid fa-triangle-exclamation text-base';
-            } else if (type === 'success') {
-                toast.classList.add('bg-emerald-600');
-                toastIcon.className = 'fa-solid fa-circle-check text-base';
-            } else {
-                toast.classList.add('bg-igBlue');
-                toastIcon.className = 'fa-solid fa-circle-info text-base';
-            }
-
-            toast.classList.remove('hidden', 'translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-                setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 3500);
-        }
-
-        /* -------------------------------------------------------------
-           4. SUPABASE & CLOUDINARY API CONNECTIONS
-           ------------------------------------------------------------- */
-        function initSupabase() {
-            const isValidUrl = SUPABASE_CONFIG.url && !SUPABASE_CONFIG.url.includes("your-supabase");
-            const isValidKey = SUPABASE_CONFIG.anonKey && !SUPABASE_CONFIG.anonKey.includes("your-supabase");
-
-            if (isValidUrl && isValidKey && typeof window.supabase !== 'undefined') {
-                try {
-                    supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-                    
-                    // Auto-detect login session dari callback Google OAuth Supabase
-                    supabaseClient.auth.onAuthStateChange((event, session) => {
-                        if (session && session.user) {
-                            currentUser = {
-                                username: session.user.email.split('@')[0],
-                                fullname: session.user.user_metadata?.full_name || session.user.email,
-                                avatar: session.user.user_metadata?.avatar_url || `https://placehold.co/150x150/0095F6/FFFFFF?text=${session.user.email.charAt(0).toUpperCase()}`,
-                                followers: ["guest_guru"],
-                                following: []
-                            };
-                            isAuthenticated = true;
-                            checkAuthStatus();
-                            showToast(`Berhasil masuk via Google (${session.user.email})`, "success");
-                        }
-                    });
-
-                    fetchPostsFromSupabase();
-                    fetchStoriesFromSupabase();
-                    return;
-                } catch (e) {
-                    console.warn("Supabase init error:", e);
-                }
-            }
-            loadSampleData();
-        }
-
-        function updateApiStatusBadges() {
-            const sbBadge = document.getElementById('supabase-status-badge');
-            const cdBadge = document.getElementById('cloudinary-status-badge');
-
-            const isSbLive = supabaseClient !== null;
-            const isCdLive = CLOUDINARY_CONFIG.cloudName && !CLOUDINARY_CONFIG.cloudName.includes("your_cloud");
-
-            if (sbBadge) {
-                sbBadge.innerText = isSbLive ? "Terhubung (Live)" : "Demo / Local";
-                sbBadge.className = isSbLive ? "px-2 py-0.5 rounded text-[10px] bg-emerald-900/60 text-emerald-300 font-medium" : "px-2 py-0.5 rounded text-[10px] bg-yellow-900/60 text-yellow-300 font-medium";
-            }
-            if (cdBadge) {
-                cdBadge.innerText = isCdLive ? "Terhubung (CDN)" : "Demo / Local";
-                cdBadge.className = isCdLive ? "px-2 py-0.5 rounded text-[10px] bg-emerald-900/60 text-emerald-300 font-medium" : "px-2 py-0.5 rounded text-[10px] bg-yellow-900/60 text-yellow-300 font-medium";
-            }
-        }
-
-        // Upload Direct to Cloudinary via REST API
-        async function uploadToCloudinary(file) {
-            if (!file) return null;
-            const isVideo = file.type.startsWith('video/');
-            const resourceType = isVideo ? 'video' : 'image';
-
-            const isCloudinaryConfigured = CLOUDINARY_CONFIG.cloudName && !CLOUDINARY_CONFIG.cloudName.includes("your_cloud") &&
-                                            CLOUDINARY_CONFIG.uploadPreset && !CLOUDINARY_CONFIG.uploadPreset.includes("your_unsigned");
-
-            if (isCloudinaryConfigured) {
-                try {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
-
-                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/${resourceType}/upload`, {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (!res.ok) throw new Error("Cloudinary upload failed: " + res.statusText);
-                    const data = await res.json();
-                    return { url: data.secure_url, type: resourceType };
-                } catch (err) {
-                    console.warn("Cloudinary Upload Error, switching to local DataURL fallback:", err);
-                    showToast("Gagal unggah ke Cloudinary CDN. Menggunakan local Data URL fallback.", "error");
-                }
-            }
-
-            // Fallback: Local FileReader Data URL
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve({ url: e.target.result, type: resourceType });
-                reader.readAsDataURL(file);
+function initSupabase() {
+    try {
+        if (window.supabase && SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
+            supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                // ditunda agar tidak memanggil Supabase di dalam callback auth (menghindari deadlock)
+                if (session && session.user) setTimeout(() => handleSession(session.user), 0);
             });
         }
+    } catch (e) {
+        console.warn('Supabase init error:', e);
+        supabaseClient = null;
+    }
+    updateApiStatusBadges();
+}
 
-        // Fetch Posts from Supabase DB
-        async function fetchPostsFromSupabase() {
-            if (!supabaseClient) return;
-            try {
-                const { data, error } = await supabaseClient.from('posts').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                if (data && data.length > 0) {
-                    postsData = data.map(p => ({
-                        id: p.id,
-                        username: p.username,
-                        fullname: p.fullname || p.username,
-                        userAvatar: p.user_avatar || 'https://placehold.co/150x150/0095F6/FFFFFF?text=U',
-                        category: p.category || 'Kegiatan',
-                        caption: p.caption,
-                        mediaUrl: p.media_url,
-                        mediaType: p.media_type || 'image',
-                        createdAt: p.created_at,
-                        likes: p.likes || [],
-                        comments: p.comments || [],
-                        isSaved: false
-                    }));
-                    renderFeed();
-                    renderProfileGrid();
-                    return;
-                }
-            } catch (e) {
-                console.warn("Supabase fetch posts warning:", e);
-            }
-            loadSampleData();
-        }
+function updateApiStatusBadges() {
+    const set = (id, live, text) => {
+        const el = $(id);
+        if (!el) return;
+        el.innerText = live ? text : 'Demo / Local';
+        el.className = 'px-2 py-0.5 rounded text-[10px] font-medium ' + (live ? 'bg-emerald-900/60 text-emerald-300' : 'bg-yellow-900/60 text-yellow-300');
+    };
+    set('supabase-status-badge', dbLive, 'Terhubung (Live)');
+    set('cloudinary-status-badge', !!(CLOUDINARY_CONFIG.cloudName && CLOUDINARY_CONFIG.uploadPreset), 'Terhubung (CDN)');
+}
 
-        // Fetch Stories from Supabase DB
-        async function fetchStoriesFromSupabase() {
-            if (!supabaseClient) return;
-            try {
-                const { data, error } = await supabaseClient.from('stories').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                if (data && data.length > 0) {
-                    storiesData = data.map(s => ({
-                        id: s.id,
-                        username: s.username,
-                        userAvatar: s.user_avatar,
-                        mediaUrl: s.media_url,
-                        mediaType: s.media_type,
-                        createdAt: s.created_at
-                    }));
-                    renderStories();
-                }
-            } catch (e) {
-                console.warn("Supabase fetch stories warning:", e);
-            }
-        }
+/* =========================================================================
+   4. SUPABASE: PROFIL, POSTS, LIKES, COMMENTS, FOLLOWERS
+   ========================================================================= */
+async function ensureProfile(user) {
+    const meta = user.user_metadata || {};
+    const { data: found } = await supabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+    if (found) return found;
+    const base = String(meta.username || (user.email || 'user').split('@')[0]).toLowerCase().replace(/[^a-z0-9_.]/g, '') || 'user';
+    const full = { id: user.id, username: base, full_name: meta.full_name || meta.name || base, avatar_url: meta.avatar_url || avatarFor(ini(base)), role: meta.role || 'Siswa' };
+    const min = { id: full.id, username: base, full_name: full.full_name, avatar_url: full.avatar_url };
+    const attempts = [full, min, { ...min, username: base + Math.floor(100 + Math.random() * 900) }];
+    for (const row of attempts) {
+        const { data, error } = await supabaseClient.from('profiles').insert(row).select().maybeSingle();
+        if (!error) return data || row;
+        console.warn('Insert profil gagal:', error.message);
+    }
+    return full;
+}
 
-        /* -------------------------------------------------------------
-           5. SAMPLE DATA LOAD (FOR DEMO/OFFLINE TESTING)
-           ------------------------------------------------------------- */
-        function loadSampleData() {
-            postsData = [
-                {
-                    id: "post-1",
-                    username: "guest_guru",
-                    fullname: "Pak Hendra (Guru Pembina)",
-                    userAvatar: "https://placehold.co/150x150/8B5CF6/FFFFFF?text=G",
-                    category: "Pengumuman",
-                    caption: "📢 PENGUMUMAN PENTING: Pelaksanaan Penilaian Akhir Semester (PAS) dimajukan minggu depan. Tetap semangat belajar semuanya! 📚📝",
-                    mediaUrl: "https://placehold.co/800x600/1e293b/ffffff?text=Pengumuman+Ujian+PAS",
-                    mediaType: "image",
-                    createdAt: "2 jam lalu",
-                    likes: ["guest_siswa", "guest_osis"],
-                    comments: [
-                        { id: "c1", username: "guest_siswa", text: "Siap Pak, terima kasih informasinya!" }
-                    ],
-                    isSaved: false
-                },
-                {
-                    id: "post-2",
-                    username: "guest_osis",
-                    fullname: "Pengurus OSIS SMAN 1",
-                    userAvatar: "https://placehold.co/150x150/10B981/FFFFFF?text=OSIS",
-                    category: "OSIS & Ekskul",
-                    caption: "🏆 Kemeriahan Final Turnamen Futsal Antar Kelas! Selamat untuk X-MIPA 2 atas juaranya! 🔥⚽",
-                    mediaUrl: "https://placehold.co/800x600/065f46/ffffff?text=Turnamen+Futsal+Sekolah",
-                    mediaType: "image",
-                    createdAt: "5 jam lalu",
-                    likes: ["guest_siswa", "guest_guru", "guest_perpus"],
-                    comments: [
-                        { id: "c2", username: "guest_guru", text: "Selamat untuk pemenang! Jaga sportifitas selalu." }
-                    ],
-                    isSaved: false
-                }
-            ];
+async function handleSession(user) {
+    if (currentUser && currentUser.id === user.id) return;
+    try {
+        const p = await ensureProfile(user);
+        currentUser = {
+            id: user.id, demo: false, username: p.username, fullname: p.full_name || p.username,
+            avatar: p.avatar_url || avatarFor(ini(p.username)), role: p.role || 'Siswa', followers: [], following: []
+        };
+        isAuthenticated = true;
+        await loadRemoteData();
+        checkAuthStatus();
+        showToast(`Berhasil masuk sebagai @${currentUser.username}`, 'success');
+    } catch (e) {
+        console.warn('handleSession error:', e);
+        showToast('Gagal memuat profil: ' + e.message, 'error');
+    }
+}
 
-            storiesData = [
-                {
-                    id: "story-1",
-                    username: "guest_osis",
-                    userAvatar: "https://placehold.co/150x150/10B981/FFFFFF?text=OSIS",
-                    mediaUrl: "https://placehold.co/600x1000/047857/ffffff?text=Rapat+OSIS+Sore+Ini",
-                    mediaType: "image",
-                    createdAt: "1 jam lalu"
-                },
-                {
-                    id: "story-2",
-                    username: "guest_guru",
-                    userAvatar: "https://placehold.co/150x150/8B5CF6/FFFFFF?text=G",
-                    mediaUrl: "https://placehold.co/600x1000/6d28d9/ffffff?text=Suasana+Perpustakaan",
-                    mediaType: "image",
-                    createdAt: "3 jam lalu"
-                }
-            ];
-
-            renderFeed();
-            renderStories();
-            renderProfileGrid();
-        }
-
-        /* -------------------------------------------------------------
-           6. AUTHENTICATION CONTROLLER
-           ------------------------------------------------------------- */
-        function checkAuthStatus() {
-            if (isAuthenticated && currentUser) {
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('main-app-wrapper').classList.remove('hidden');
-                updateUserUI();
-                renderFeed();
-                renderStories();
-            } else {
-                document.getElementById('auth-screen').classList.remove('hidden');
-                document.getElementById('main-app-wrapper').classList.add('hidden');
-            }
-        }
-
-        function switchAuthTab(tab) {
-            const loginForm = document.getElementById('auth-login-form');
-            const regForm = document.getElementById('auth-register-form');
-            const loginBtn = document.getElementById('tab-btn-login');
-            const regBtn = document.getElementById('tab-btn-register');
-
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
-                loginBtn.className = "flex-1 py-2 text-center text-igBlue border-b-2 border-igBlue transition";
-                regBtn.className = "flex-1 py-2 text-center text-igLightGray hover:text-white transition";
-            } else {
-                loginForm.classList.add('hidden');
-                regForm.classList.remove('hidden');
-                loginBtn.className = "flex-1 py-2 text-center text-igLightGray hover:text-white transition";
-                regBtn.className = "flex-1 py-2 text-center text-igBlue border-b-2 border-igBlue transition";
-            }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            const identifier = document.getElementById('login-identifier').value.trim();
-            const cleanUser = identifier.startsWith('@') ? identifier.slice(1) : identifier.split('@')[0];
-            
-            currentUser = {
-                username: cleanUser,
-                fullname: `${cleanUser} (Siswa)`,
-                avatar: `https://placehold.co/150x150/0095F6/FFFFFF?text=${cleanUser.charAt(0).toUpperCase()}`,
-                followers: ["guest_guru", "guest_perpus", "osis_official"],
-                following: ["guest_osis"]
-            };
-
-            isAuthenticated = true;
-            checkAuthStatus();
-            showToast(`Selamat datang kembali, @${cleanUser}!`, "success");
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const fullname = document.getElementById('reg-fullname').value.trim();
-            const username = document.getElementById('reg-username').value.trim().replace(/^@/, '');
-            const role = document.getElementById('reg-role').value;
-
-            currentUser = {
-                username: username,
-                fullname: `${fullname} - ${role}`,
-                avatar: `https://placehold.co/150x150/10B981/FFFFFF?text=${username.charAt(0).toUpperCase()}`,
-                followers: ["guest_guru"],
-                following: []
-            };
-
-            isAuthenticated = true;
-            checkAuthStatus();
-            showToast("Akun berhasil dibuat!", "success");
-        }
-
-        function quickAuthLogin(roleKey) {
-            if (USER_PRESETS[roleKey]) {
-                currentUser = JSON.parse(JSON.stringify(USER_PRESETS[roleKey]));
-                isAuthenticated = true;
-                checkAuthStatus();
-                showToast(`Masuk sebagai @${currentUser.username}`, "info");
-            }
-        }
-
-        function handleLogout() {
-            isAuthenticated = false;
-            currentUser = null;
-            closeAccountModal();
-            checkAuthStatus();
-            showToast("Berhasil keluar akun", "info");
-        }
-
-        async function loginWithGoogle() {
-            if (!supabaseClient) {
-                showToast("Pengaturan Supabase belum diisi. Memakai Simulasi Login.", "info");
-                quickAuthLogin('siswa');
-                return;
-            }
-            try {
-                const { error } = await supabaseClient.auth.signInWithOAuth({ 
-                    provider: 'google',
-                    options: {
-                        redirectTo: window.location.origin + window.location.pathname
-                    }
-                });
-                if (error) throw error;
-            } catch (e) {
-                showToast("Google Auth Error: " + e.message, "error");
-            }
-        }
-
-        function switchUserRole(roleKey) {
-            if (USER_PRESETS[roleKey]) {
-                currentUser = JSON.parse(JSON.stringify(USER_PRESETS[roleKey]));
-                updateUserUI();
-                closeAccountModal();
-                renderProfileGrid();
-                showToast(`Beralih akun ke @${currentUser.username}`, "success");
-            }
-        }
-
-        function updateUserUI() {
-            if (!currentUser) return;
-            document.getElementById('sidebar-avatar').src = currentUser.avatar;
-            document.getElementById('mobile-bottom-avatar').src = currentUser.avatar;
-            document.getElementById('sidebar-username-label').innerText = `@${currentUser.username}`;
-
-            document.getElementById('right-sidebar-avatar').src = currentUser.avatar;
-            document.getElementById('right-sidebar-username').innerText = currentUser.username;
-            document.getElementById('right-sidebar-fullname').innerText = currentUser.fullname;
-
-            document.getElementById('profile-page-avatar').src = currentUser.avatar;
-            document.getElementById('profile-page-username').innerText = `@${currentUser.username}`;
-            document.getElementById('profile-page-fullname').innerText = currentUser.fullname;
-
-            document.getElementById('profile-followers-count').innerText = (currentUser.followers || []).length;
-            document.getElementById('profile-following-count').innerText = (currentUser.following || []).length;
-
-            document.getElementById('modal-post-avatar').src = currentUser.avatar;
-            document.getElementById('modal-post-username').innerText = currentUser.username;
-            document.getElementById('story-my-avatar').src = currentUser.avatar;
-
-            document.getElementById('current-user-modal-avatar').src = currentUser.avatar;
-            document.getElementById('current-user-modal-name').innerText = currentUser.fullname;
-            document.getElementById('current-user-modal-handle').innerText = `@${currentUser.username}`;
-        }
-
-        /* -------------------------------------------------------------
-           7. RENDER FEED & POSTS
-           ------------------------------------------------------------- */
-        function switchTab(tab) {
-            const feedSection = document.getElementById('view-feed');
-            const profileSection = document.getElementById('view-profile');
-
-            if (tab === 'feed') {
-                feedSection.classList.remove('hidden');
-                profileSection.classList.add('hidden');
-            } else {
-                feedSection.classList.add('hidden');
-                profileSection.classList.remove('hidden');
-                renderProfileGrid();
-            }
-        }
-
-        function filterCategory(category) {
-            activeCategoryFilter = category;
-            
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.className = "category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0 transition";
-            });
-
-            const activeBtn = document.getElementById(`cat-btn-${category}`);
-            if (activeBtn) {
-                activeBtn.className = "category-btn active bg-igBlue text-white px-3.5 py-1.5 rounded-full font-medium flex-shrink-0 transition";
-            }
-
-            renderFeed();
-        }
-
-        function renderFeed() {
-            const container = document.getElementById('feed-posts-container');
-            const emptyNotice = document.getElementById('empty-feed-notice');
-            container.innerHTML = '';
-
-            let filtered = postsData;
-            if (activeCategoryFilter !== 'All') {
-                filtered = postsData.filter(p => p.category === activeCategoryFilter);
-            }
-
-            if (filtered.length === 0) {
-                emptyNotice.classList.remove('hidden');
-                return;
-            } else {
-                emptyNotice.classList.add('hidden');
-            }
-
-            filtered.forEach(post => {
-                const isLiked = currentUser && post.likes.includes(currentUser.username);
-                const postCard = document.createElement('article');
-                postCard.className = 'bg-black border-y md:border border-igBorder md:rounded-xl overflow-hidden';
-                postCard.id = `post-card-${post.id}`;
-
-                postCard.innerHTML = `
-                    <!-- Header Post -->
-                    <div class="flex items-center justify-between p-3.5">
-                        <div class="flex items-center space-x-3">
-                            <img src="${post.userAvatar}" class="w-9 h-9 rounded-full object-cover border border-igBorder">
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <span class="font-semibold text-sm text-white hover:underline cursor-pointer">@${post.username}</span>
-                                    <span class="text-[10px] bg-neutral-800 text-igLightGray px-2 py-0.5 rounded-full font-medium border border-igBorder">${post.category}</span>
-                                </div>
-                                <p class="text-[11px] text-igTextGray">${post.createdAt || 'Baru saja'}</p>
-                            </div>
-                        </div>
-                        <button class="text-igLightGray hover:text-white"><i class="fa-solid fa-ellipsis"></i></button>
-                    </div>
-
-                    <!-- Media Post dengan Double Tap Heart -->
-                    <div class="relative bg-neutral-950 flex items-center justify-center cursor-pointer group" onclick="handlePostMediaClick('${post.id}')">
-                        ${post.mediaType === 'video' ? `
-                            <video src="${post.mediaUrl}" controls class="w-full max-h-[600px] object-contain"></video>
-                        ` : `
-                            <img src="${post.mediaUrl}" class="w-full max-h-[600px] object-contain select-none">
-                        `}
-                        <!-- Floating Heart Animation overlay -->
-                        <div id="heart-burst-${post.id}" class="absolute inset-0 flex items-center justify-center pointer-events-none hidden">
-                            <i class="fa-solid fa-heart text-red-500 text-7xl drop-shadow-2xl animate-heart-pulse"></i>
-                        </div>
-                    </div>
-
-                    <!-- Action Bar -->
-                    <div class="p-3.5 space-y-2">
-                        <div class="flex items-center justify-between text-2xl">
-                            <div class="flex items-center space-x-4">
-                                <button onclick="toggleLikePost('${post.id}')" class="transition transform active:scale-125">
-                                    <i class="${isLiked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart text-white hover:text-igLightGray'}"></i>
-                                </button>
-                                <button onclick="openCommentModal('${post.id}')" class="text-white hover:text-igLightGray">
-                                    <i class="fa-regular fa-comment"></i>
-                                </button>
-                                <button onclick="sharePost('${post.id}')" class="text-white hover:text-igLightGray">
-                                    <i class="fa-regular fa-paper-plane"></i>
-                                </button>
-                            </div>
-                            <button onclick="toggleSavePost('${post.id}')" class="text-white hover:text-igLightGray">
-                                <i class="${post.isSaved ? 'fa-solid fa-bookmark text-white' : 'fa-regular fa-bookmark'}"></i>
-                            </button>
-                        </div>
-
-                        <!-- Jumlah Likes -->
-                        <p class="text-xs font-semibold text-white">
-                            ${post.likes.length} menyukai
-                        </p>
-
-                        <!-- Caption -->
-                        <div class="text-xs space-x-1.5 leading-relaxed">
-                            <span class="font-semibold text-white">@${post.username}</span>
-                            <span class="text-neutral-200">${post.caption}</span>
-                        </div>
-
-                        <!-- Komentar Link -->
-                        ${post.comments.length > 0 ? `
-                            <button onclick="openCommentModal('${post.id}')" class="text-xs text-igTextGray hover:underline block pt-1">
-                                Lihat semua ${post.comments.length} komentar
-                            </button>
-                        ` : ''}
-                    </div>
-                `;
-
-                container.appendChild(postCard);
-            });
-        }
-
-        /* -------------------------------------------------------------
-           8. POST INTERACTIONS (LIKE, COMMENT, SAVE, SHARE)
-           ------------------------------------------------------------- */
-        let lastClickTime = 0;
-        function handlePostMediaClick(postId) {
-            const now = new Date().getTime();
-            if (now - lastClickTime < 300) {
-                // Double tap detected
-                toggleLikePost(postId, true);
-            }
-            lastClickTime = now;
-        }
-
-        async function toggleLikePost(postId, forceLike = false) {
-            if (!currentUser) return;
-            const post = postsData.find(p => p.id === postId);
-            if (!post) return;
-
-            const userIdx = post.likes.indexOf(currentUser.username);
-
-            if (userIdx > -1 && !forceLike) {
-                post.likes.splice(userIdx, 1);
-            } else if (userIdx === -1) {
-                post.likes.push(currentUser.username);
-                // Trigger heart animation
-                const heartBurst = document.getElementById(`heart-burst-${postId}`);
-                if (heartBurst) {
-                    heartBurst.classList.remove('hidden');
-                    setTimeout(() => heartBurst.classList.add('hidden'), 700);
-                }
-            }
-
-            renderFeed();
-
-            // Supabase update if live
-            if (supabaseClient) {
-                await supabaseClient.from('posts').update({ likes: post.likes }).eq('id', postId);
-            }
-        }
-
-        function toggleSavePost(postId) {
-            const post = postsData.find(p => p.id === postId);
-            if (!post) return;
-            post.isSaved = !post.isSaved;
-            renderFeed();
-            showToast(post.isSaved ? "Kiriman disimpan" : "Batal menyimpan kiriman", "info");
-        }
-
-        function sharePost(postId) {
-            const dummyUrl = window.location.href;
-            navigator.clipboard.writeText(dummyUrl).then(() => {
-                showToast("Tautan kiriman berhasil disalin ke clipboard!", "success");
-            }).catch(() => {
-                showToast("Tautan siap dibagikan!", "info");
-            });
-        }
-
-        /* -------------------------------------------------------------
-           9. MEDIA UPLOAD (CREATE POST & VIDEO 15s VALIDATION)
-           ------------------------------------------------------------- */
-        function handleFileSelect(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            selectedMediaFile = file;
-            const isVideo = file.type.startsWith('video/');
-            selectedMediaType = isVideo ? 'video' : 'image';
-
-            const dropzonePrompt = document.getElementById('dropzone-prompt');
-            const previewContainer = document.getElementById('media-preview-container');
-            const imgPreview = document.getElementById('image-preview');
-            const vidPreview = document.getElementById('video-preview');
-            const durationWarning = document.getElementById('video-duration-warning');
-            const submitBtn = document.getElementById('submit-post-btn');
-
-            dropzonePrompt.classList.add('hidden');
-            previewContainer.classList.remove('hidden');
-            durationWarning.classList.add('hidden');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-            const fileUrl = URL.createObjectURL(file);
-
-            if (isVideo) {
-                imgPreview.classList.add('hidden');
-                vidPreview.classList.remove('hidden');
-                vidPreview.src = fileUrl;
-
-                vidPreview.onloadedmetadata = function() {
-                    if (vidPreview.duration > 15) {
-                        durationWarning.classList.remove('hidden');
-                        submitBtn.disabled = true;
-                        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                        showToast("Durasi video melebihi 15 detik!", "error");
-                    }
+async function loadRemoteData() {
+    if (!supabaseClient) return;
+    try {
+        const q = t => supabaseClient.from(t).select('*');
+        const [pr, po, li, co, fo] = await Promise.all([
+            q('profiles'), q('posts').order('created_at', { ascending: false }), q('likes'),
+            q('comments').order('created_at', { ascending: true }), q('followers')
+        ]);
+        if (po.error) throw po.error;
+        if (pr.error) throw pr.error;
+        profilesMap = {};
+        (pr.data || []).forEach(p => { profilesMap[p.id] = p; });
+        const uname = id => (profilesMap[id] && profilesMap[id].username) || 'pengguna';
+        const rows = po.data || [];
+        if (rows.length > 0 || (currentUser && !currentUser.demo)) {
+            postsData = rows.map(p => {
+                const pf = profilesMap[p.user_id] || {};
+                return {
+                    id: p.id, remote: true, userId: p.user_id, username: pf.username || 'pengguna',
+                    fullname: pf.full_name || pf.username || 'Pengguna', userAvatar: pf.avatar_url || avatarFor(ini(pf.username)),
+                    category: p.category || 'Kegiatan', caption: p.caption || '', mediaUrl: p.media_url,
+                    mediaType: p.media_type || 'image', createdAt: p.created_at,
+                    likes: (li.data || []).filter(l => l.post_id === p.id).map(l => uname(l.user_id)),
+                    comments: (co.data || []).filter(c => c.post_id === p.id).map(c => ({ id: c.id, username: uname(c.user_id), text: c.content ?? c.text ?? '' }))
                 };
-            } else {
-                vidPreview.classList.add('hidden');
-                imgPreview.classList.remove('hidden');
-                imgPreview.src = fileUrl;
-            }
-        }
-
-        function clearMediaSelection() {
-            selectedMediaFile = null;
-            selectedMediaType = null;
-            document.getElementById('media-file-input').value = '';
-            document.getElementById('dropzone-prompt').classList.remove('hidden');
-            document.getElementById('media-preview-container').classList.add('hidden');
-            document.getElementById('video-duration-warning').classList.add('hidden');
-            
-            const submitBtn = document.getElementById('submit-post-btn');
-            submitBtn.disabled = false;
-            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        }
-
-        async function submitPost() {
-            const caption = document.getElementById('post-caption').value.trim();
-            const category = document.getElementById('post-category').value;
-            const submitBtn = document.getElementById('submit-post-btn');
-            const spinner = document.getElementById('submit-post-spinner');
-            const label = document.getElementById('submit-post-label');
-
-            if (!selectedMediaFile && !caption) {
-                showToast("Tulis keterangan atau pilih file foto/video terlebih dahulu!", "error");
-                return;
-            }
-
-            // Start Loading
-            submitBtn.disabled = true;
-            spinner.classList.remove('hidden');
-            label.innerText = "Mengunggah...";
-
-            let uploadedMedia = { url: "https://placehold.co/800x600/0284c7/ffffff?text=SynapseSOFWA", type: "image" };
-
-            if (selectedMediaFile) {
-                uploadedMedia = await uploadToCloudinary(selectedMediaFile);
-            }
-
-            const newPost = {
-                id: "post-" + Date.now(),
-                username: currentUser.username,
-                fullname: currentUser.fullname,
-                userAvatar: currentUser.avatar,
-                category: category,
-                caption: caption || "Kegiatan sekolah terbaru di SynapseSOFWA.",
-                mediaUrl: uploadedMedia.url,
-                mediaType: uploadedMedia.type,
-                createdAt: "Baru saja",
-                likes: [],
-                comments: [],
-                isSaved: false
-            };
-
-            // Supabase Save if client connected
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('posts').insert([{
-                        username: newPost.username,
-                        fullname: newPost.fullname,
-                        user_avatar: newPost.userAvatar,
-                        category: newPost.category,
-                        caption: newPost.caption,
-                        media_url: newPost.mediaUrl,
-                        media_type: newPost.mediaType,
-                        likes: [],
-                        comments: []
-                    }]);
-                } catch (err) {
-                    console.warn("Supabase insert error:", err);
-                }
-            }
-
-            postsData.unshift(newPost);
-            
-            // Reset & Close
-            submitBtn.disabled = false;
-            spinner.classList.add('hidden');
-            label.innerText = "Bagikan";
-            document.getElementById('post-caption').value = '';
-            closeCreateModal();
-
-            renderFeed();
-            renderProfileGrid();
-            showToast("Kiriman baru berhasil dibagikan!", "success");
-        }
-
-        /* -------------------------------------------------------------
-           10. STORIES CONTROLLER & FULLSCREEN VIEWER
-           ------------------------------------------------------------- */
-        function renderStories() {
-            const container = document.getElementById('stories-container');
-            container.innerHTML = '';
-
-            storiesData.forEach(story => {
-                const storyEl = document.createElement('div');
-                storyEl.className = 'flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer';
-                storyEl.onclick = () => openStoryViewer(story.id);
-
-                storyEl.innerHTML = `
-                    <div class="w-16 h-16 rounded-full p-[2px] story-ring flex items-center justify-center">
-                        <img src="${story.userAvatar}" class="w-full h-full rounded-full object-cover border-2 border-black">
-                    </div>
-                    <span class="text-xs text-igLightGray truncate w-16 text-center">@${story.username}</span>
-                `;
-                container.appendChild(storyEl);
             });
         }
-
-        async function submitStory() {
-            const fileInput = document.getElementById('story-file-input');
-            const file = fileInput.files[0];
-            const submitBtn = document.getElementById('submit-story-btn');
-            const spinner = document.getElementById('submit-story-spinner');
-            const label = document.getElementById('submit-story-label');
-
-            if (!file) {
-                showToast("Pilih media untuk story terlebih dahulu!", "error");
-                return;
-            }
-
-            submitBtn.disabled = true;
-            spinner.classList.remove('hidden');
-            label.innerText = "Mengunggah...";
-
-            const uploadedMedia = await uploadToCloudinary(file);
-
-            const newStory = {
-                id: "story-" + Date.now(),
-                username: currentUser.username,
-                userAvatar: currentUser.avatar,
-                mediaUrl: uploadedMedia.url,
-                mediaType: uploadedMedia.type,
-                createdAt: "Baru saja"
-            };
-
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.from('stories').insert([{
-                        username: newStory.username,
-                        user_avatar: newStory.userAvatar,
-                        media_url: newStory.mediaUrl,
-                        media_type: newStory.mediaType
-                    }]);
-                } catch (e) {
-                    console.warn("Supabase story insert warning:", e);
-                }
-            }
-
-            storiesData.unshift(newStory);
-
-            submitBtn.disabled = false;
-            spinner.classList.add('hidden');
-            label.innerText = "Unggah Story";
-            fileInput.value = '';
-            closeStoryUploadModal();
-
-            renderStories();
-            showToast("Story sekolah berhasil diunggah!", "success");
+        if (currentUser && currentUser.id && fo.data) {
+            currentUser.followers = fo.data.filter(f => f.following_id === currentUser.id).map(f => uname(f.follower_id));
+            currentUser.following = fo.data.filter(f => f.follower_id === currentUser.id).map(f => uname(f.following_id));
         }
+        dbLive = true;
+        await loadStories();
+    } catch (e) {
+        console.warn('Supabase belum bisa dibaca, memakai data lokal:', e.message || e);
+        dbLive = false;
+    }
+    updateApiStatusBadges();
+    if (isAuthenticated) { updateUserUI(); }
+    renderFeed(); renderStories(); renderProfileGrid(); renderSuggested();
+}
 
-        function openStoryViewer(storyId) {
-            const story = storiesData.find(s => s.id === storyId);
-            if (!story) return;
-
-            const modal = document.getElementById('story-viewer-modal');
-            const avatar = document.getElementById('story-viewer-avatar');
-            const username = document.getElementById('story-viewer-username');
-            const time = document.getElementById('story-viewer-time');
-            const img = document.getElementById('story-viewer-img');
-            const vid = document.getElementById('story-viewer-video');
-            const progressBar = document.getElementById('story-progress-bar');
-
-            avatar.src = story.userAvatar;
-            username.innerText = `@${story.username}`;
-            time.innerText = story.createdAt;
-
-            if (story.mediaType === 'video') {
-                img.classList.add('hidden');
-                vid.classList.remove('hidden');
-                vid.src = story.mediaUrl;
-            } else {
-                vid.classList.add('hidden');
-                img.classList.remove('hidden');
-                img.src = story.mediaUrl;
-            }
-
-            modal.classList.remove('hidden');
-
-            // Animate progress bar
-            progressBar.style.width = '0%';
-            let progress = 0;
-            clearInterval(storyProgressTimer);
-            storyProgressTimer = setInterval(() => {
-                progress += 2;
-                progressBar.style.width = `${progress}%`;
-                if (progress >= 100) {
-                    clearInterval(storyProgressTimer);
-                    closeStoryViewer();
-                }
-            }, 100);
+async function loadStories() {
+    try {
+        const since = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
+        const { data, error } = await supabaseClient.from('stories').select('*').gte('created_at', since).order('created_at', { ascending: false });
+        if (error) throw error;
+        if (data && data.length) {
+            const remote = data.map(s => {
+                const pf = profilesMap[s.user_id] || {};
+                return { id: s.id, remote: true, username: pf.username || s.username || 'pengguna', userAvatar: pf.avatar_url || s.user_avatar || avatarFor(ini(pf.username)), mediaUrl: s.media_url, mediaType: s.media_type || 'image', createdAt: s.created_at };
+            });
+            storiesData = [...storiesData.filter(s => s.local), ...remote];
         }
+    } catch (e) {
+        console.info('Tabel "stories" opsional belum tersedia, story disimpan lokal.', e.message || e);
+    }
+}
 
-        function closeStoryViewer() {
-            clearInterval(storyProgressTimer);
-            document.getElementById('story-viewer-modal').classList.add('hidden');
-            const vid = document.getElementById('story-viewer-video');
-            vid.pause();
-        }
+/* =========================================================================
+   5. CLOUDINARY UPLOAD & VALIDASI VIDEO
+   ========================================================================= */
+async function uploadToCloudinary(file) {
+    const type = file.type.startsWith('video/') ? 'video' : 'image';
+    try {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('upload_preset', CLOUDINARY_CONFIG.uploadPreset);
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/${type}/upload`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (!res.ok) throw new Error((data.error && data.error.message) || res.statusText);
+        return { url: data.secure_url, type, local: false };
+    } catch (err) {
+        console.warn('Cloudinary error:', err);
+        showToast('Upload Cloudinary gagal (' + err.message + '). Memakai penyimpanan lokal sementara.', 'error');
+        const url = await new Promise(r => { const fr = new FileReader(); fr.onload = e => r(e.target.result); fr.readAsDataURL(file); });
+        return { url, type, local: true };
+    }
+}
 
-        /* -------------------------------------------------------------
-           11. COMMENTS SYSTEM
-           ------------------------------------------------------------- */
-        function openCommentModal(postId) {
-            activeCommentPostId = postId;
-            const post = postsData.find(p => p.id === postId);
-            if (!post) return;
+function getVideoDuration(file) {
+    return new Promise(resolve => {
+        const v = document.createElement('video');
+        v.preload = 'metadata';
+        v.onloadedmetadata = () => { URL.revokeObjectURL(v.src); resolve(v.duration); };
+        v.onerror = () => resolve(0);
+        v.src = URL.createObjectURL(file);
+    });
+}
+const isTooLong = async file => file.type.startsWith('video/') && (await getVideoDuration(file)) > MAX_VIDEO_SECONDS + 0.3;
 
-            const modal = document.getElementById('comment-modal');
-            const listContainer = document.getElementById('comment-list-container');
-            listContainer.innerHTML = '';
+/* =========================================================================
+   6. DATA CONTOH (FALLBACK)
+   ========================================================================= */
+function loadSampleData() {
+    const ago = h => new Date(Date.now() - h * 3600 * 1000).toISOString();
+    postsData = [
+        { id: "post-1", username: "guest_guru", fullname: "Pak Hendra (Guru Pembina)", userAvatar: avatarFor('G', '8B5CF6'), category: "Pengumuman",
+          caption: "📢 PENGUMUMAN PENTING: Pelaksanaan Penilaian Akhir Semester (PAS) dimajukan minggu depan. Tetap semangat belajar semuanya! 📚📝",
+          mediaUrl: "https://placehold.co/800x600/1e293b/ffffff?text=Pengumuman+Ujian+PAS", mediaType: "image", createdAt: ago(2),
+          likes: ["guest_siswa", "guest_osis"], comments: [{ id: "c1", username: "guest_siswa", text: "Siap Pak, terima kasih informasinya!" }] },
+        { id: "post-2", username: "guest_osis", fullname: "Pengurus OSIS SMAN 1", userAvatar: avatarFor('OSIS', '10B981'), category: "OSIS & Ekskul",
+          caption: "🏆 Kemeriahan Final Turnamen Futsal Antar Kelas! Selamat untuk X-MIPA 2 atas juaranya! 🔥⚽",
+          mediaUrl: "https://placehold.co/800x600/065f46/ffffff?text=Turnamen+Futsal+Sekolah", mediaType: "image", createdAt: ago(5),
+          likes: ["guest_siswa", "guest_guru", "guest_perpus"], comments: [{ id: "c2", username: "guest_guru", text: "Selamat untuk pemenang! Jaga sportifitas selalu." }] }
+    ];
+    storiesData = [
+        { id: "story-1", username: "guest_osis", userAvatar: avatarFor('OSIS', '10B981'), mediaUrl: "https://placehold.co/600x1000/047857/ffffff?text=Rapat+OSIS+Sore+Ini", mediaType: "image", createdAt: ago(1) },
+        { id: "story-2", username: "guest_guru", userAvatar: avatarFor('G', '8B5CF6'), mediaUrl: "https://placehold.co/600x1000/6d28d9/ffffff?text=Suasana+Perpustakaan", mediaType: "image", createdAt: ago(3) }
+    ];
+}
 
-            if (post.comments.length === 0) {
-                listContainer.innerHTML = `<p class="text-center text-xs text-igTextGray py-12">Belum ada komentar. Jadilah yang pertama berkomentar!</p>`;
-            } else {
-                post.comments.forEach(c => {
-                    const cItem = document.createElement('div');
-                    cItem.className = 'flex items-start space-x-3 text-xs';
-                    cItem.innerHTML = `
-                        <div class="w-7 h-7 rounded-full bg-igBlue/20 text-igBlue font-bold flex items-center justify-center flex-shrink-0 uppercase">
-                            ${c.username.charAt(0)}
+/* =========================================================================
+   7. AUTENTIKASI
+   ========================================================================= */
+function checkAuthStatus() {
+    if (isAuthenticated && currentUser) {
+        $('auth-screen').classList.add('hidden');
+        $('main-app-wrapper').classList.remove('hidden');
+        updateUserUI();
+        renderFeed(); renderStories(); renderProfileGrid(); renderSuggested();
+        if (!hashHandled && location.hash.startsWith('#post-')) { hashHandled = true; goToPost(location.hash.slice(6)); }
+    } else {
+        $('auth-screen').classList.remove('hidden');
+        $('main-app-wrapper').classList.add('hidden');
+    }
+}
+
+function switchAuthTab(tab) {
+    const on = "flex-1 py-2 text-center text-igBlue border-b-2 border-igBlue transition";
+    const off = "flex-1 py-2 text-center text-igLightGray hover:text-white transition";
+    $('auth-login-form').classList.toggle('hidden', tab !== 'login');
+    $('auth-register-form').classList.toggle('hidden', tab === 'login');
+    $('tab-btn-login').className = tab === 'login' ? on : off;
+    $('tab-btn-register').className = tab === 'login' ? off : on;
+}
+
+function setDemoUser(roleKey) {
+    currentUser = JSON.parse(JSON.stringify(USER_PRESETS[roleKey]));
+    isAuthenticated = true;
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const id = $('login-identifier').value.trim();
+    const pw = $('login-password').value;
+    if (supabaseClient && id.includes('@') && !id.startsWith('@')) {
+        const { error } = await supabaseClient.auth.signInWithPassword({ email: id, password: pw });
+        if (error) showToast('Gagal masuk: ' + error.message, 'error');
+        return; // sukses ditangani onAuthStateChange
+    }
+    const name = (id.startsWith('@') ? id.slice(1) : id.split('@')[0]).replace(/[^a-zA-Z0-9_.]/g, '') || 'siswa';
+    currentUser = { demo: true, username: name, fullname: `${name} (Siswa)`, role: 'Siswa', avatar: avatarFor(ini(name)), followers: ["guest_guru", "guest_perpus", "osis_official"], following: ["guest_osis"] };
+    isAuthenticated = true;
+    checkAuthStatus();
+    showToast(`Masuk mode demo sebagai @${name}. Gunakan email untuk akun Supabase.`, 'info');
+}
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const fullname = $('reg-fullname').value.trim();
+    const username = $('reg-username').value.trim().replace(/^@/, '').toLowerCase().replace(/[^a-z0-9_.]/g, '');
+    const email = $('reg-email').value.trim();
+    const role = $('reg-role').value;
+    const password = $('reg-password').value;
+    if (!username) { showToast('Username hanya boleh huruf, angka, titik, dan garis bawah.', 'error'); return; }
+    if (supabaseClient) {
+        const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username, full_name: fullname, role } } });
+        if (error) { showToast('Gagal mendaftar: ' + error.message, 'error'); return; }
+        if (!data.session) { showToast('Akun dibuat. Cek email untuk konfirmasi, lalu masuk.', 'success'); switchAuthTab('login'); }
+        return;
+    }
+    currentUser = { demo: true, username, fullname: `${fullname} - ${role}`, role, avatar: avatarFor(ini(username), '10B981'), followers: ["guest_guru"], following: [] };
+    isAuthenticated = true;
+    checkAuthStatus();
+    showToast('Akun demo berhasil dibuat!', 'success');
+}
+
+function quickAuthLogin(roleKey) {
+    if (!USER_PRESETS[roleKey]) return;
+    setDemoUser(roleKey);
+    checkAuthStatus();
+    showToast(`Masuk sebagai @${currentUser.username}`, 'info');
+}
+
+async function handleLogout() {
+    try { if (supabaseClient && currentUser && currentUser.id) await supabaseClient.auth.signOut(); } catch (e) { console.warn(e); }
+    isAuthenticated = false;
+    currentUser = null;
+    closeAccountModal();
+    checkAuthStatus();
+    showToast('Berhasil keluar akun', 'info');
+}
+
+async function loginWithGoogle() {
+    if (!supabaseClient) { showToast('Supabase belum termuat. Memakai simulasi login.', 'info'); quickAuthLogin('siswa'); return; }
+    if (location.protocol === 'file:') { showToast('Google OAuth butuh http(s). Buka lewat hosting/localhost, bukan file://.', 'error'); return; }
+    try {
+        const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: location.href.split('#')[0] } });
+        if (error) throw error;
+    } catch (e) { showToast('Google Auth Error: ' + e.message, 'error'); }
+}
+
+async function switchUserRole(roleKey) {
+    if (!USER_PRESETS[roleKey]) return;
+    if (supabaseClient && currentUser && currentUser.id) { try { await supabaseClient.auth.signOut(); } catch (e) { /* abaikan */ } }
+    setDemoUser(roleKey);
+    updateUserUI();
+    closeAccountModal();
+    renderFeed(); renderProfileGrid(); renderSuggested();
+    showToast(`Beralih akun ke @${currentUser.username}`, 'success');
+}
+
+function updateUserUI() {
+    if (!currentUser) return;
+    const u = currentUser;
+    ['sidebar-avatar', 'mobile-bottom-avatar', 'right-sidebar-avatar', 'profile-page-avatar', 'modal-post-avatar', 'story-my-avatar', 'current-user-modal-avatar'].forEach(id => { const el = $(id); if (el) el.src = u.avatar; });
+    $('sidebar-username-label').innerText = `@${u.username}`;
+    $('right-sidebar-username').innerText = u.username;
+    $('right-sidebar-fullname').innerText = u.fullname;
+    $('profile-page-username').innerText = `@${u.username}`;
+    $('profile-page-fullname').innerText = u.fullname;
+    $('profile-page-bio').innerText = `${u.role || 'Siswa'} • Komunitas Digital Sekolah 📚 SynapseSOFWA ✨`;
+    $('profile-followers-count').innerText = (u.followers || []).length;
+    $('profile-following-count').innerText = (u.following || []).length;
+    $('modal-post-username').innerText = u.username;
+    $('current-user-modal-name').innerText = u.fullname;
+    $('current-user-modal-handle').innerText = `@${u.username}${u.demo ? ' • mode demo' : ''}`;
+}
+
+/* =========================================================================
+   8. NAVIGASI & FEED
+   ========================================================================= */
+function switchTab(tab) {
+    $('view-feed').classList.toggle('hidden', tab !== 'feed');
+    $('view-profile').classList.toggle('hidden', tab === 'feed');
+    if (tab !== 'feed') renderProfileGrid();
+    window.scrollTo({ top: 0 });
+}
+
+function filterCategory(category) {
+    activeCategoryFilter = category;
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.className = "category-btn bg-neutral-900 text-igLightGray hover:text-white px-3.5 py-1.5 rounded-full font-medium border border-igBorder flex-shrink-0 transition";
+    });
+    const active = $(`cat-btn-${category}`);
+    if (active) active.className = "category-btn active bg-igBlue text-white px-3.5 py-1.5 rounded-full font-medium flex-shrink-0 transition";
+    switchTab('feed');
+    renderFeed();
+}
+
+function goToPost(id) {
+    filterCategory('All');
+    setTimeout(() => { const el = $('post-card-' + id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
+}
+
+function renderFeed() {
+    const container = $('feed-posts-container');
+    const empty = $('empty-feed-notice');
+    const list = activeCategoryFilter === 'All' ? postsData : postsData.filter(p => p.category === activeCategoryFilter);
+    container.innerHTML = '';
+    empty.classList.toggle('hidden', list.length > 0);
+
+    list.forEach(post => {
+        const liked = currentUser && post.likes.includes(currentUser.username);
+        const saved = savedIds.has(String(post.id));
+        const card = document.createElement('article');
+        card.className = 'bg-black border-y md:border border-igBorder md:rounded-xl overflow-hidden';
+        card.id = `post-card-${post.id}`;
+        card.innerHTML = `
+            <div class="flex items-center justify-between p-3.5">
+                <div class="flex items-center space-x-3">
+                    <img src="${esc(post.userAvatar)}" class="w-9 h-9 rounded-full object-cover border border-igBorder" alt="">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-sm text-white">@${esc(post.username)}</span>
+                            <span class="text-[10px] bg-neutral-800 text-igLightGray px-2 py-0.5 rounded-full font-medium border border-igBorder">${esc(post.category)}</span>
                         </div>
-                        <div class="flex-1 bg-neutral-900 p-2.5 rounded-lg border border-igBorder">
-                            <span class="font-semibold text-white mr-1.5">@${c.username}</span>
-                            <span class="text-neutral-200">${c.text}</span>
-                        </div>
-                    `;
-                    listContainer.appendChild(cItem);
-                });
-            }
+                        <p class="text-[11px] text-igTextGray">${esc(timeAgo(post.createdAt))}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative bg-neutral-950 flex items-center justify-center cursor-pointer select-none" onclick="handlePostMediaClick('${post.id}')">
+                ${post.mediaType === 'video'
+                    ? `<video src="${esc(post.mediaUrl)}" controls playsinline preload="metadata" class="w-full max-h-[600px] object-contain"></video>`
+                    : `<img src="${esc(post.mediaUrl)}" class="w-full max-h-[600px] object-contain" alt="Media kiriman">`}
+                <div id="heart-burst-${post.id}" class="absolute inset-0 flex items-center justify-center pointer-events-none hidden">
+                    <i class="fa-solid fa-heart text-red-500 text-7xl drop-shadow-2xl animate-heart-pulse"></i>
+                </div>
+            </div>
+            <div class="p-3.5 space-y-2">
+                <div class="flex items-center justify-between text-2xl">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleLikePost('${post.id}')" class="transition transform active:scale-125"><i id="like-icon-${post.id}" class="${liked ? 'fa-solid fa-heart text-red-500' : 'fa-regular fa-heart text-white hover:text-igLightGray'}"></i></button>
+                        <button onclick="openCommentModal('${post.id}')" class="text-white hover:text-igLightGray"><i class="fa-regular fa-comment"></i></button>
+                        <button onclick="sharePost('${post.id}')" class="text-white hover:text-igLightGray"><i class="fa-regular fa-paper-plane"></i></button>
+                    </div>
+                    <button onclick="toggleSavePost('${post.id}')" class="text-white hover:text-igLightGray"><i id="save-icon-${post.id}" class="${saved ? 'fa-solid fa-bookmark text-white' : 'fa-regular fa-bookmark'}"></i></button>
+                </div>
+                <p id="like-count-${post.id}" class="text-xs font-semibold text-white">${post.likes.length} menyukai</p>
+                <div class="text-xs leading-relaxed"><span class="font-semibold text-white mr-1.5">@${esc(post.username)}</span><span class="text-neutral-200">${esc(post.caption)}</span></div>
+                ${post.comments.length ? `<button onclick="openCommentModal('${post.id}')" class="text-xs text-igTextGray hover:underline block pt-1">Lihat semua ${post.comments.length} komentar</button>` : ''}
+            </div>`;
+        container.appendChild(card);
+    });
+}
 
-            modal.classList.remove('hidden');
+/* =========================================================================
+   9. INTERAKSI: LIKE, SIMPAN, SHARE
+   ========================================================================= */
+let lastTap = { id: null, time: 0 };
+function handlePostMediaClick(postId) {
+    const now = Date.now();
+    if (lastTap.id === postId && now - lastTap.time < 300) { toggleLikePost(postId, true); lastTap = { id: null, time: 0 }; return; }
+    lastTap = { id: postId, time: now };
+}
+
+function burstHeart(postId) {
+    const el = $('heart-burst-' + postId);
+    if (!el) return;
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 700);
+}
+
+async function toggleLikePost(postId, fromDoubleTap = false) {
+    if (!currentUser) return;
+    const post = postsData.find(p => String(p.id) === String(postId));
+    if (!post) return;
+    const idx = post.likes.indexOf(currentUser.username);
+    const wasLiked = idx > -1;
+    if (fromDoubleTap && wasLiked) { burstHeart(post.id); return; }
+    if (wasLiked) post.likes.splice(idx, 1); else { post.likes.push(currentUser.username); burstHeart(post.id); }
+
+    const icon = $('like-icon-' + post.id), count = $('like-count-' + post.id);
+    if (icon) icon.className = wasLiked ? 'fa-regular fa-heart text-white hover:text-igLightGray' : 'fa-solid fa-heart text-red-500';
+    if (count) count.innerText = `${post.likes.length} menyukai`;
+
+    if (canSync(post)) {
+        const r = wasLiked
+            ? await supabaseClient.from('likes').delete().eq('post_id', post.id).eq('user_id', currentUser.id)
+            : await supabaseClient.from('likes').insert({ post_id: post.id, user_id: currentUser.id });
+        if (r.error) { console.warn('Sinkron like gagal:', r.error.message); showToast('Like tersimpan lokal saja: ' + r.error.message, 'error'); }
+    }
+}
+
+function toggleSavePost(postId) {
+    const key = String(postId), on = !savedIds.has(key);
+    if (on) savedIds.add(key); else savedIds.delete(key);
+    try { localStorage.setItem('syn_saved', JSON.stringify([...savedIds])); } catch (e) { /* abaikan */ }
+    const icon = $('save-icon-' + postId);
+    if (icon) icon.className = on ? 'fa-solid fa-bookmark text-white' : 'fa-regular fa-bookmark';
+    if (activeProfileTab === 'saved') renderProfileGrid();
+    showToast(on ? 'Kiriman disimpan' : 'Batal menyimpan kiriman', 'info');
+}
+
+async function sharePost(postId) {
+    const url = `${location.href.split('#')[0]}#post-${postId}`;
+    try {
+        if (navigator.share) { await navigator.share({ title: 'SynapseSOFWA', url }); return; }
+        await navigator.clipboard.writeText(url);
+        showToast('Tautan kiriman berhasil disalin!', 'success');
+    } catch (e) {
+        if (e.name !== 'AbortError') showToast('Tautan kiriman: ' + url, 'info');
+    }
+}
+
+/* =========================================================================
+   10. BUAT KIRIMAN (UPLOAD FOTO/VIDEO, VALIDASI 15 DETIK)
+   ========================================================================= */
+function setPostBusy(busy) {
+    $('submit-post-btn').disabled = busy;
+    $('submit-post-btn').classList.toggle('opacity-50', busy);
+    $('submit-post-spinner').classList.toggle('hidden', !busy);
+    $('submit-post-label').innerText = busy ? 'Mengunggah...' : 'Bagikan';
+}
+
+async function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    clearMediaSelection(false);
+    selectedMediaFile = file;
+    selectedMediaType = file.type.startsWith('video/') ? 'video' : 'image';
+    $('dropzone-prompt').classList.add('hidden');
+    $('media-preview-container').classList.remove('hidden');
+    const url = URL.createObjectURL(file);
+    const img = $('image-preview'), vid = $('video-preview');
+    img.classList.toggle('hidden', selectedMediaType === 'video');
+    vid.classList.toggle('hidden', selectedMediaType !== 'video');
+    (selectedMediaType === 'video' ? vid : img).src = url;
+
+    const tooLong = await isTooLong(file);
+    $('video-duration-warning').classList.toggle('hidden', !tooLong);
+    $('submit-post-btn').disabled = tooLong;
+    $('submit-post-btn').classList.toggle('opacity-50', tooLong);
+    if (tooLong) showToast(`Durasi video melebihi ${MAX_VIDEO_SECONDS} detik!`, 'error');
+}
+
+function clearMediaSelection(resetInput = true) {
+    selectedMediaFile = null;
+    selectedMediaType = null;
+    ['image-preview', 'video-preview'].forEach(id => {
+        const el = $(id);
+        if (el.src && el.src.startsWith('blob:')) URL.revokeObjectURL(el.src);
+        el.removeAttribute('src');
+        el.classList.add('hidden');
+    });
+    if (resetInput) $('media-file-input').value = '';
+    $('dropzone-prompt').classList.remove('hidden');
+    $('media-preview-container').classList.add('hidden');
+    $('video-duration-warning').classList.add('hidden');
+    $('submit-post-btn').disabled = false;
+    $('submit-post-btn').classList.remove('opacity-50');
+}
+
+async function submitPost() {
+    if (!currentUser) return;
+    const caption = $('post-caption').value.trim();
+    const category = $('post-category').value;
+    if (!selectedMediaFile && !caption) { showToast('Tulis keterangan atau pilih foto/video terlebih dahulu!', 'error'); return; }
+    if (selectedMediaFile && await isTooLong(selectedMediaFile)) { showToast(`Video maksimal ${MAX_VIDEO_SECONDS} detik!`, 'error'); return; }
+
+    setPostBusy(true);
+    try {
+        let media = { url: 'https://placehold.co/800x600/0284c7/ffffff?text=SynapseSOFWA', type: 'image', local: false };
+        if (selectedMediaFile) media = await uploadToCloudinary(selectedMediaFile);
+
+        const post = {
+            id: 'local-' + Date.now(), remote: false, userId: currentUser.id, username: currentUser.username, fullname: currentUser.fullname,
+            userAvatar: currentUser.avatar, category, caption: caption || 'Kegiatan sekolah terbaru di SynapseSOFWA.',
+            mediaUrl: media.url, mediaType: media.type, createdAt: new Date().toISOString(), likes: [], comments: []
+        };
+
+        if (supabaseClient && currentUser.id && !media.local) {
+            const { data, error } = await supabaseClient.from('posts')
+                .insert({ user_id: currentUser.id, caption: post.caption, category, media_url: post.mediaUrl, media_type: post.mediaType })
+                .select().single();
+            if (error) { console.warn('Insert post gagal:', error.message); showToast('Kiriman hanya tersimpan lokal: ' + error.message, 'error'); }
+            else { post.id = data.id; post.remote = true; post.createdAt = data.created_at || post.createdAt; }
         }
 
-        function closeCommentModal() {
-            document.getElementById('comment-modal').classList.add('hidden');
-            activeCommentPostId = null;
+        postsData.unshift(post);
+        $('post-caption').value = '';
+        closeCreateModal();
+        renderFeed(); renderProfileGrid();
+        showToast('Kiriman baru berhasil dibagikan!', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Gagal membagikan kiriman: ' + e.message, 'error');
+    }
+    setPostBusy(false);
+}
+
+/* =========================================================================
+   11. STORY
+   ========================================================================= */
+function renderStories() {
+    const container = $('stories-container');
+    container.innerHTML = '';
+    const done = new Set();
+    storiesData.forEach(story => {
+        if (done.has(story.username)) return;
+        done.add(story.username);
+        const allSeen = storiesData.filter(s => s.username === story.username).every(s => viewedStories.has(String(s.id)));
+        const el = document.createElement('div');
+        el.className = 'flex flex-col items-center space-y-1 flex-shrink-0 cursor-pointer';
+        el.onclick = () => openStoryViewer(story.id);
+        el.innerHTML = `
+            <div class="w-16 h-16 rounded-full p-[2px] ${allSeen ? 'bg-neutral-700' : 'story-ring'} flex items-center justify-center">
+                <img src="${esc(story.userAvatar)}" class="w-full h-full rounded-full object-cover border-2 border-black" alt="">
+            </div>
+            <span class="text-xs text-igLightGray truncate w-16 text-center">@${esc(story.username)}</span>`;
+        container.appendChild(el);
+    });
+}
+
+async function submitStory() {
+    const input = $('story-file-input');
+    const file = input.files[0];
+    if (!file) { showToast('Pilih media untuk story terlebih dahulu!', 'error'); return; }
+    if (await isTooLong(file)) { showToast(`Video story maksimal ${MAX_VIDEO_SECONDS} detik!`, 'error'); return; }
+
+    const btn = $('submit-story-btn');
+    btn.disabled = true;
+    $('submit-story-spinner').classList.remove('hidden');
+    $('submit-story-label').innerText = 'Mengunggah...';
+    try {
+        const media = await uploadToCloudinary(file);
+        const story = { id: 'local-story-' + Date.now(), local: true, username: currentUser.username, userAvatar: currentUser.avatar, mediaUrl: media.url, mediaType: media.type, createdAt: new Date().toISOString() };
+        if (supabaseClient && currentUser.id && !media.local) {
+            const { data, error } = await supabaseClient.from('stories').insert({ user_id: currentUser.id, media_url: media.url, media_type: media.type }).select().maybeSingle();
+            if (error) console.info('Story tersimpan lokal (tabel stories belum ada):', error.message);
+            else if (data) { story.id = data.id; story.local = false; story.remote = true; }
         }
+        storiesData.unshift(story);
+        input.value = '';
+        closeStoryUploadModal();
+        renderStories();
+        showToast('Story sekolah berhasil diunggah!', 'success');
+    } catch (e) { showToast('Gagal mengunggah story: ' + e.message, 'error'); }
+    btn.disabled = false;
+    $('submit-story-spinner').classList.add('hidden');
+    $('submit-story-label').innerText = 'Unggah Story';
+}
 
-        async function handleAddComment(e) {
-            e.preventDefault();
-            if (!activeCommentPostId || !currentUser) return;
+let storyIdx = 0, storyTimer = null, storyDur = STORY_IMAGE_MS;
+function openStoryViewer(storyId) {
+    storyIdx = storiesData.findIndex(s => String(s.id) === String(storyId));
+    if (storyIdx < 0) return;
+    $('story-viewer-modal').classList.remove('hidden');
+    playStory();
+}
 
-            const input = document.getElementById('comment-input-text');
-            const text = input.value.trim();
-            if (!text) return;
+function playStory() {
+    clearInterval(storyTimer);
+    const s = storiesData[storyIdx];
+    if (!s) { closeStoryViewer(); return; }
+    viewedStories.add(String(s.id));
+    $('story-viewer-avatar').src = s.userAvatar;
+    $('story-viewer-username').innerText = `@${s.username}`;
+    $('story-viewer-time').innerText = timeAgo(s.createdAt);
+    const img = $('story-viewer-img'), vid = $('story-viewer-video'), bar = $('story-progress-bar');
+    storyDur = STORY_IMAGE_MS;
+    if (s.mediaType === 'video') {
+        img.classList.add('hidden'); vid.classList.remove('hidden');
+        vid.onloadedmetadata = () => { storyDur = Math.min(vid.duration || MAX_VIDEO_SECONDS, MAX_VIDEO_SECONDS) * 1000; };
+        vid.src = s.mediaUrl;
+        vid.play().catch(() => {});
+    } else {
+        vid.pause(); vid.removeAttribute('src'); vid.classList.add('hidden');
+        img.classList.remove('hidden'); img.src = s.mediaUrl;
+    }
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    const t0 = Date.now();
+    storyTimer = setInterval(() => {
+        const pct = (Date.now() - t0) / storyDur * 100;
+        bar.style.width = Math.min(pct, 100) + '%';
+        if (pct >= 100) storyNav(1);
+    }, 50);
+}
 
-            const post = postsData.find(p => p.id === activeCommentPostId);
-            if (!post) return;
+function storyNav(dir) {
+    storyIdx += dir;
+    if (storyIdx < 0) storyIdx = 0;
+    if (storyIdx >= storiesData.length) closeStoryViewer(); else playStory();
+}
 
-            const newComment = { id: "c-" + Date.now(), username: currentUser.username, text };
-            post.comments.push(newComment);
+function closeStoryViewer() {
+    clearInterval(storyTimer);
+    $('story-viewer-modal').classList.add('hidden');
+    const vid = $('story-viewer-video');
+    vid.pause();
+    vid.removeAttribute('src');
+    renderStories();
+}
 
-            input.value = '';
-            openCommentModal(activeCommentPostId);
-            renderFeed();
+/* =========================================================================
+   12. KOMENTAR
+   ========================================================================= */
+function openCommentModal(postId) {
+    activeCommentPostId = postId;
+    const post = postsData.find(p => String(p.id) === String(postId));
+    if (!post) return;
+    const box = $('comment-list-container');
+    box.innerHTML = post.comments.length ? '' : `<p class="text-center text-xs text-igTextGray py-12">Belum ada komentar. Jadilah yang pertama berkomentar!</p>`;
+    post.comments.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'flex items-start space-x-3 text-xs';
+        item.innerHTML = `
+            <div class="w-7 h-7 rounded-full bg-igBlue/20 text-igBlue font-bold flex items-center justify-center flex-shrink-0">${esc(ini(c.username))}</div>
+            <div class="flex-1 bg-neutral-900 p-2.5 rounded-lg border border-igBorder">
+                <span class="font-semibold text-white mr-1.5">@${esc(c.username)}</span><span class="text-neutral-200">${esc(c.text)}</span>
+            </div>`;
+        box.appendChild(item);
+    });
+    box.scrollTop = box.scrollHeight;
+    $('comment-modal').classList.remove('hidden');
+}
 
-            if (supabaseClient) {
-                await supabaseClient.from('posts').update({ comments: post.comments }).eq('id', activeCommentPostId);
-            }
-            showToast("Komentar terkirim", "success");
-        }
+function closeCommentModal() { $('comment-modal').classList.add('hidden'); activeCommentPostId = null; }
 
-        /* -------------------------------------------------------------
-           12. SEARCH SYSTEM
-           ------------------------------------------------------------- */
-        function openSearchModal() {
-            document.getElementById('search-modal').classList.remove('hidden');
-            document.getElementById('search-input-query').focus();
-        }
+async function handleAddComment(e) {
+    e.preventDefault();
+    if (!activeCommentPostId || !currentUser) return;
+    const input = $('comment-input-text');
+    const text = input.value.trim();
+    const post = postsData.find(p => String(p.id) === String(activeCommentPostId));
+    if (!text || !post) return;
+    post.comments.push({ id: 'c-' + Date.now(), username: currentUser.username, text });
+    input.value = '';
+    openCommentModal(post.id);
+    renderFeed();
+    if (canSync(post)) {
+        const { error } = await supabaseClient.from('comments').insert({ post_id: post.id, user_id: currentUser.id, content: text });
+        if (error) { console.warn(error.message); showToast('Komentar tersimpan lokal saja: ' + error.message, 'error'); return; }
+    }
+    showToast('Komentar terkirim', 'success');
+}
 
-        function closeSearchModal() {
-            document.getElementById('search-modal').classList.add('hidden');
-        }
+/* =========================================================================
+   13. PENCARIAN
+   ========================================================================= */
+function allUsers() {
+    const real = Object.values(profilesMap).map(p => ({ username: p.username, fullname: p.full_name || p.username, avatar: p.avatar_url || avatarFor(ini(p.username)) }));
+    return real.length ? real : Object.values(KNOWN_USERS_DB);
+}
+const userInfo = u => allUsers().find(x => x.username === u) || KNOWN_USERS_DB[u] || { username: u, fullname: '@' + u, avatar: avatarFor(ini(u)) };
 
-        function handleSearchQuery(query) {
-            const container = document.getElementById('search-results-container');
-            const q = query.toLowerCase().trim();
+function openSearchModal() {
+    $('search-modal').classList.remove('hidden');
+    $('search-input-query').value = '';
+    handleSearchQuery('');
+    $('search-input-query').focus();
+}
+function closeSearchModal() { $('search-modal').classList.add('hidden'); }
 
-            if (!q) {
-                container.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Ketik kata kunci untuk mencari di SynapseSOFWA...</p>`;
-                return;
-            }
+function handleSearchQuery(query) {
+    const box = $('search-results-container');
+    const q = query.toLowerCase().trim();
+    if (!q) { box.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Ketik kata kunci untuk mencari di SynapseSOFWA...</p>`; return; }
+    const users = allUsers().filter(u => u.username.toLowerCase().includes(q) || u.fullname.toLowerCase().includes(q)).slice(0, 5);
+    const posts = postsData.filter(p => p.caption.toLowerCase().includes(q) || p.username.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+    box.innerHTML = '';
+    if (!users.length && !posts.length) { box.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Tidak ada hasil untuk "${esc(query)}"</p>`; return; }
 
-            const matches = postsData.filter(p => 
-                p.caption.toLowerCase().includes(q) || 
-                p.username.toLowerCase().includes(q) || 
-                p.category.toLowerCase().includes(q)
-            );
+    users.forEach(u => {
+        const following = currentUser && currentUser.following.includes(u.username);
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between p-2';
+        row.innerHTML = `
+            <div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full object-cover border border-igBorder" alt="">
+                <div class="text-xs"><p class="font-semibold text-white">@${esc(u.username)}</p><p class="text-igLightGray">${esc(u.fullname)}</p></div></div>
+            ${currentUser && u.username !== currentUser.username ? `<button onclick="toggleFollow('${esc(u.username)}'); handleSearchQuery($('search-input-query').value)" class="text-xs font-semibold ${following ? 'text-igLightGray' : 'text-igBlue'}">${following ? 'Mengikuti' : 'Ikuti'}</button>` : ''}`;
+        box.appendChild(row);
+    });
+    posts.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center space-x-3 p-2 hover:bg-neutral-900 rounded-lg cursor-pointer transition';
+        item.onclick = () => { closeSearchModal(); goToPost(p.id); };
+        item.innerHTML = `
+            ${p.mediaType === 'video' ? `<video src="${esc(p.mediaUrl)}" class="w-12 h-12 rounded object-cover" muted></video>` : `<img src="${esc(p.mediaUrl)}" class="w-12 h-12 rounded object-cover" alt="">`}
+            <div class="text-xs flex-1 min-w-0"><p class="font-semibold text-white">@${esc(p.username)} <span class="text-igTextGray font-normal">• ${esc(p.category)}</span></p>
+            <p class="text-igLightGray truncate mt-0.5">${esc(p.caption)}</p></div>`;
+        box.appendChild(item);
+    });
+}
 
-            container.innerHTML = '';
-            if (matches.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Tidak ada hasil ditemukan untuk "${query}"</p>`;
-            } else {
-                matches.forEach(p => {
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center space-x-3 p-2 hover:bg-neutral-900 rounded-lg cursor-pointer transition';
-                    item.onclick = () => {
-                        closeSearchModal();
-                        switchTab('feed');
-                        const el = document.getElementById(`post-card-${p.id}`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    };
+/* =========================================================================
+   14. PROFIL, GRID & FOLLOW
+   ========================================================================= */
+function switchProfileTab(tab) {
+    activeProfileTab = tab;
+    ['posts', 'reels', 'saved'].forEach(t => {
+        $('profile-tab-' + t).className = (t === tab ? 'py-3 text-white border-t-2 border-white' : 'py-3 text-igTextGray hover:text-white') + ' flex items-center space-x-2';
+    });
+    renderProfileGrid();
+}
 
-                    item.innerHTML = `
-                        <img src="${p.mediaUrl}" class="w-12 h-12 rounded object-cover">
-                        <div class="text-xs flex-1 truncate">
-                            <p class="font-semibold text-white">@${p.username} <span class="text-igTextGray font-normal">• ${p.category}</span></p>
-                            <p class="text-igLightGray truncate mt-0.5">${p.caption}</p>
-                        </div>
-                    `;
-                    container.appendChild(item);
-                });
-            }
-        }
+function renderProfileGrid() {
+    if (!currentUser) return;
+    const box = $('profile-grid-container');
+    const mine = postsData.filter(p => p.username === currentUser.username);
+    const items = activeProfileTab === 'posts' ? mine
+        : activeProfileTab === 'reels' ? mine.filter(p => p.mediaType === 'video')
+        : postsData.filter(p => savedIds.has(String(p.id)));
+    $('profile-post-count').innerText = mine.length;
+    $('empty-profile-grid').classList.toggle('hidden', items.length > 0);
+    box.innerHTML = '';
+    items.forEach(p => {
+        const cell = document.createElement('div');
+        cell.className = 'relative aspect-square bg-neutral-900 group cursor-pointer overflow-hidden rounded-md';
+        cell.onclick = () => goToPost(p.id);
+        cell.innerHTML = `
+            ${p.mediaType === 'video' ? `<video src="${esc(p.mediaUrl)}" class="w-full h-full object-cover" muted preload="metadata"></video><i class="fa-solid fa-clapperboard absolute top-2 right-2 text-white text-sm"></i>` : `<img src="${esc(p.mediaUrl)}" class="w-full h-full object-cover" alt="">`}
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-4 text-white font-semibold text-sm transition-opacity">
+                <span><i class="fa-solid fa-heart mr-1"></i>${p.likes.length}</span><span><i class="fa-solid fa-comment mr-1"></i>${p.comments.length}</span>
+            </div>`;
+        box.appendChild(cell);
+    });
+}
 
-        /* -------------------------------------------------------------
-           13. PROFILE GRID & TABS
-           ------------------------------------------------------------- */
-        function switchProfileTab(tab) {
-            activeProfileTab = tab;
-            document.getElementById('profile-tab-posts').className = tab === 'posts' ? "py-3 text-white border-t-2 border-white flex items-center space-x-2" : "py-3 text-igTextGray hover:text-white flex items-center space-x-2";
-            document.getElementById('profile-tab-reels').className = tab === 'reels' ? "py-3 text-white border-t-2 border-white flex items-center space-x-2" : "py-3 text-igTextGray hover:text-white flex items-center space-x-2";
-            document.getElementById('profile-tab-saved').className = tab === 'saved' ? "py-3 text-white border-t-2 border-white flex items-center space-x-2" : "py-3 text-igTextGray hover:text-white flex items-center space-x-2";
+function renderSuggested() {
+    const box = $('suggested-container');
+    if (!box || !currentUser) return;
+    box.innerHTML = allUsers().filter(u => u.username !== currentUser.username).slice(0, 5).map(u => {
+        const f = currentUser.following.includes(u.username);
+        return `<div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" class="w-9 h-9 rounded-full object-cover border border-igBorder" alt="">
+                <div class="text-xs"><p class="font-semibold text-white">@${esc(u.username)}</p><p class="text-igTextGray text-[11px] truncate max-w-[130px]">${esc(u.fullname)}</p></div></div>
+            <button onclick="toggleFollow('${esc(u.username)}')" class="text-xs font-semibold ${f ? 'text-igLightGray' : 'text-igBlue'} hover:text-white transition">${f ? 'Mengikuti' : 'Ikuti'}</button></div>`;
+    }).join('');
+}
 
-            renderProfileGrid();
-        }
+async function toggleFollow(target) {
+    if (!currentUser || target === currentUser.username) return;
+    const idx = currentUser.following.indexOf(target);
+    const wasFollowing = idx > -1;
+    if (wasFollowing) currentUser.following.splice(idx, 1); else currentUser.following.push(target);
+    updateUserUI(); renderSuggested();
+    if (!$('follow-modal').classList.contains('hidden')) openFollowModal(followModalType);
 
-        function renderProfileGrid() {
-            if (!currentUser) return;
-            const container = document.getElementById('profile-grid-container');
-            const emptyGrid = document.getElementById('empty-profile-grid');
-            container.innerHTML = '';
+    const prof = Object.values(profilesMap).find(p => p.username === target);
+    if (supabaseClient && currentUser.id && prof) {
+        const r = wasFollowing
+            ? await supabaseClient.from('followers').delete().eq('follower_id', currentUser.id).eq('following_id', prof.id)
+            : await supabaseClient.from('followers').insert({ follower_id: currentUser.id, following_id: prof.id });
+        if (r.error) { console.warn(r.error.message); showToast('Follow tersimpan lokal saja: ' + r.error.message, 'error'); }
+    }
+}
 
-            let items = [];
-            if (activeProfileTab === 'posts') {
-                items = postsData.filter(p => p.username === currentUser.username);
-            } else if (activeProfileTab === 'reels') {
-                items = postsData.filter(p => p.username === currentUser.username && p.mediaType === 'video');
-            } else if (activeProfileTab === 'saved') {
-                items = postsData.filter(p => p.isSaved);
-            }
+function openFollowModal(type) {
+    if (!currentUser) return;
+    followModalType = type;
+    $('follow-modal-title').innerText = type === 'followers' ? 'Followers' : 'Following';
+    const box = $('follow-modal-list');
+    const names = (type === 'followers' ? currentUser.followers : currentUser.following) || [];
+    box.innerHTML = names.length ? '' : `<p class="text-center text-xs text-igTextGray py-8">Belum ada ${type}</p>`;
+    names.forEach(n => {
+        const u = userInfo(n);
+        const f = currentUser.following.includes(n);
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between py-1';
+        row.innerHTML = `
+            <div class="flex items-center space-x-3"><img src="${esc(u.avatar)}" class="w-10 h-10 rounded-full object-cover border border-igBorder" alt="">
+                <div class="text-xs"><p class="font-semibold text-white">@${esc(u.username)}</p><p class="text-igLightGray truncate max-w-[140px]">${esc(u.fullname)}</p></div></div>
+            ${n !== currentUser.username ? `<button onclick="toggleFollow('${esc(n)}')" class="${f ? 'bg-neutral-800 text-white border border-igBorder hover:bg-neutral-700' : 'bg-igBlue text-white hover:bg-igHoverBlue'} px-3 py-1.5 rounded-lg text-xs font-semibold transition">${f ? 'Mengikuti' : 'Ikuti'}</button>` : ''}`;
+        box.appendChild(row);
+    });
+    $('follow-modal').classList.remove('hidden');
+}
 
-            document.getElementById('profile-post-count').innerText = postsData.filter(p => p.username === currentUser.username).length;
-
-            if (items.length === 0) {
-                emptyGrid.classList.remove('hidden');
-            } else {
-                emptyGrid.classList.add('hidden');
-                items.forEach(p => {
-                    const gridCard = document.createElement('div');
-                    gridCard.className = 'relative aspect-square bg-neutral-900 group cursor-pointer overflow-hidden rounded-md';
-                    gridCard.onclick = () => {
-                        switchTab('feed');
-                        const el = document.getElementById(`post-card-${p.id}`);
-                        if (el) el.scrollIntoView({ behavior: 'smooth' });
-                    };
-
-                    gridCard.innerHTML = `
-                        ${p.mediaType === 'video' ? `
-                            <video src="${p.mediaUrl}" class="w-full h-full object-cover"></video>
-                        ` : `
-                            <img src="${p.mediaUrl}" class="w-full h-full object-cover">
-                        `}
-                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center space-x-4 text-white font-semibold text-sm transition-opacity">
-                            <span><i class="fa-solid fa-heart mr-1"></i> ${p.likes.length}</span>
-                            <span><i class="fa-solid fa-comment mr-1"></i> ${p.comments.length}</span>
-                        </div>
-                    `;
-                    container.appendChild(gridCard);
-                });
-            }
-        }
-
-        /* -------------------------------------------------------------
-           14. FOLLOW MODAL & MODAL CONTROLLERS
-           ------------------------------------------------------------- */
-        function toggleFollow(targetUsername) {
-            if (!currentUser || targetUsername === currentUser.username) return;
-
-            if (!currentUser.following) currentUser.following = [];
-            const idx = currentUser.following.indexOf(targetUsername);
-
-            if (idx > -1) {
-                currentUser.following.splice(idx, 1);
-            } else {
-                currentUser.following.push(targetUsername);
-            }
-
-            updateUserUI();
-
-            const followModal = document.getElementById('follow-modal');
-            if (!followModal.classList.contains('hidden')) {
-                openFollowModal(document.getElementById('follow-modal-title').innerText.toLowerCase());
-            }
-        }
-
-        function openFollowModal(type) {
-            const modal = document.getElementById('follow-modal');
-            const title = document.getElementById('follow-modal-title');
-            const container = document.getElementById('follow-modal-list');
-
-            title.innerText = type === 'followers' ? 'Followers' : 'Following';
-            container.innerHTML = '';
-
-            const listUsernames = type === 'followers' ? (currentUser.followers || []) : (currentUser.following || []);
-
-            if (listUsernames.length === 0) {
-                container.innerHTML = `<p class="text-center text-xs text-igTextGray py-8">Belum ada ${type}</p>`;
-            } else {
-                listUsernames.forEach(uname => {
-                    const user = KNOWN_USERS_DB[uname] || {
-                        username: uname,
-                        fullname: `@${uname}`,
-                        avatar: `https://placehold.co/150x150/0095F6/FFFFFF?text=${uname.charAt(0).toUpperCase()}`
-                    };
-
-                    const isFollowing = currentUser.following && currentUser.following.includes(uname);
-                    const isSelf = uname === currentUser.username;
-
-                    const item = document.createElement('div');
-                    item.className = 'flex items-center justify-between py-1';
-                    item.innerHTML = `
-                        <div class="flex items-center space-x-3">
-                            <img src="${user.avatar}" class="w-10 h-10 rounded-full object-cover border border-igBorder">
-                            <div class="text-xs">
-                                <p class="font-semibold text-white">@${user.username}</p>
-                                <p class="text-igLightGray truncate max-w-[140px]">${user.fullname}</p>
-                            </div>
-                        </div>
-                        ${!isSelf ? `
-                            <button onclick="toggleFollow('${user.username}')" class="${isFollowing ? 'bg-neutral-800 text-white border border-igBorder hover:bg-neutral-700' : 'bg-igBlue text-white hover:bg-igHoverBlue'} px-3 py-1.5 rounded-lg text-xs font-semibold transition">
-                                ${isFollowing ? 'Mengikuti' : 'Ikuti'}
-                            </button>
-                        ` : ''}
-                    `;
-                    container.appendChild(item);
-                });
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeFollowModal() { document.getElementById('follow-modal').classList.add('hidden'); }
-        function openCreateModal() { document.getElementById('create-modal').classList.remove('hidden'); }
-        function closeCreateModal() { document.getElementById('create-modal').classList.add('hidden'); clearMediaSelection(); }
-        function openStoryUploadModal() { document.getElementById('story-upload-modal').classList.remove('hidden'); }
-        function closeStoryUploadModal() { document.getElementById('story-upload-modal').classList.add('hidden'); }
-        function openAccountModal() { document.getElementById('account-modal').classList.remove('hidden'); }
-        function closeAccountModal() { document.getElementById('account-modal').classList.add('hidden'); }
+/* =========================================================================
+   15. KONTROL MODAL
+   ========================================================================= */
+function closeFollowModal() { $('follow-modal').classList.add('hidden'); }
+function openCreateModal() { $('create-modal').classList.remove('hidden'); }
+function closeCreateModal() { $('create-modal').classList.add('hidden'); clearMediaSelection(); }
+function openStoryUploadModal() { $('story-upload-modal').classList.remove('hidden'); }
+function closeStoryUploadModal() { $('story-upload-modal').classList.add('hidden'); }
+function openAccountModal() { $('account-modal').classList.remove('hidden'); }
+function closeAccountModal() { $('account-modal').classList.add('hidden'); }
     </script>
 </body>
 </html>
